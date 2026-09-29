@@ -1,0 +1,29 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Flask and local environment files
+.env
+.flaskenv
+instance/
+
+# Local databases and generated data
+*.db
+*.sqlite
+*.sqlite3
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE and operating-system files
+.vscode/
+.idea/
+.DS_Store
