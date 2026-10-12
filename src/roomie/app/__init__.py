@@ -7,7 +7,7 @@ def create_app(test_config=None):
 
     app.config.from_mapping(
         SECRET_KEY=os.environ.get("SECRET_KEY", "dev"),
-        DATABASE=os.path.join(app.instance_path, "roomie.sqlite"),
+        DATA_DIR=os.path.join(app.instance_path),
     )
 
     if test_config is None:
@@ -16,9 +16,11 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     os.makedirs(app.instance_path, exist_ok=True)
+    
+    from . import storage
 
-    from . import db
-    db.init_app(app)
+    with app.app_context():
+        storage.initialize_storage()
 
     @app.get("/health")
     def health():
