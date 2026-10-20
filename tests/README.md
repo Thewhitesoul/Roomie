@@ -1,5 +1,3 @@
-# Tests
-
 # Roomie Requirements-Based Testing and Integration Plan
 
 ## 1. Purpose
