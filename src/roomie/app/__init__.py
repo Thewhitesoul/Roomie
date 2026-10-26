@@ -4,6 +4,7 @@ from .profile import profiles_bp
 from . import db
 from . import auth
 from . import profile
+from .matches import matches_bp
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -22,6 +23,7 @@ def create_app(test_config=None):
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(profiles_bp)
+    app.register_blueprint(matches_bp)
 
     @app.get("/health")
     def health():
