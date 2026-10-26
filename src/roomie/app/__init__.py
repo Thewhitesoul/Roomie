@@ -1,7 +1,9 @@
 import os
 from flask import Flask
 from .profile import profiles_bp
-from . import storage
+from . import db
+from . import auth
+from . import profile
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -17,10 +19,9 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     os.makedirs(app.instance_path, exist_ok=True)
+    db.init_app(app)
+    app.register_blueprint(auth.bp)
     app.register_blueprint(profiles_bp)
-
-    with app.app_context():
-        storage.initialize_storage()
 
     @app.get("/health")
     def health():

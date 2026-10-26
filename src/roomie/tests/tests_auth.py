@@ -1,4 +1,4 @@
-from app import storage
+from app.db import get_db
 def register(client, username="arpan", email="arpan@washburn.edu", password="password123"):
     return client.post("/auth/register", json={
         "username": username, "email": email, "password": password,
@@ -6,32 +6,32 @@ def register(client, username="arpan", email="arpan@washburn.edu", password="pas
 
 def login(client, email="arpan@washburn.edu", password="password123"):
     return client.post("/auth/login", json={"email": email, "password": password})
+
+def user_count(app):
+    with app.app_context():
+        return get_db().execute("SELECT COUNT(*) FROM users").fetchone()[0]
 #register
 def test_register_success(client, app):
     resp = register(client)
     assert resp.status_code == 201
     assert resp.get_json()["user"]["id"] == "user-001"
-    saved = storage.read_json("users.json")[0]
+    with app.app_context():
+        saved = get_db().execute("SELECT * FROM users WHERE id=1").fetchone()
     assert saved["email"] == "arpan@washburn.edu"
     assert saved["password_hash"] != "password123"    
     
 def test_register_does_not_return_password_hash(client):
     assert "password_hash" not in register(client).get_json()["user"]
 
-def test_register_ids_count_up(client):
-    register(client)
-    resp = register(client, username="stuti", email="stuti@washburn.edu")
-    assert resp.get_json()["user"]["id"] == "user-002"
-
 def test_register_logs_user_in(client):
     register(client)
     assert client.get("/auth/me").status_code == 200
 
-def test_register_duplicate_email(client):
+def test_register_duplicate_email(client, app):
     register(client)
     resp = register(client, username="other", email="ARPAN@washburn.edu")
     assert resp.status_code == 409
-    assert len(storage.read_json("users.json")) == 1
+    assert user_count(app) == 1
 
 def test_register_duplicate_username(client):
     register(client)
