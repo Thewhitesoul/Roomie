@@ -5,13 +5,14 @@ from . import db
 from . import auth
 from . import profile
 from .matches import matches_bp
+from .interests import interest_bp
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
     app.config.from_mapping(
         SECRET_KEY=os.environ.get("SECRET_KEY", "dev"),
-        DATA_DIR=os.path.join(app.instance_path),
+        DATABASE=os.path.join(app.instance_path, "roomie.sqlite"),
     )
 
     if test_config is None:
@@ -24,6 +25,7 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(profiles_bp)
     app.register_blueprint(matches_bp)
+    app.register_blueprint(interest_bp)
 
     @app.get("/health")
     def health():

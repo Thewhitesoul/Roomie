@@ -5,14 +5,11 @@ from .auth import login_required
 from .db import get_db
 
 matches_bp = Blueprint("matches", __name__, url_prefix="/matches")
-
 DEFAULT_LIMIT = 20
 MAX_LIMIT = 50
 
-
 def _error(message, status):
     return jsonify({"error": message}), status
-
 
 def _whole_number(name):
     """Read an optional whole-number query parameter. Returns (value, error)."""

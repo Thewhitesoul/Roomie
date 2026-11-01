@@ -21,7 +21,7 @@ def init_db():
 @click.command("init-db")
 @with_appcontext
 def init_db_command():
-    init_db
+    init_db()
     click.echo("Initialized the Roomie database")
 
 def init_app(app):

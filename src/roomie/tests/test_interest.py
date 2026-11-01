@@ -28,7 +28,6 @@ def user_ids(resp):
 
 
 # ---------- sending ----------
-
 def test_requires_login(client):
     assert client.post("/interest/1").status_code == 401
     assert client.get("/interest/sent").status_code == 401
@@ -49,7 +48,10 @@ def test_cannot_show_interest_in_self(client, people):
 
 
 def test_unknown_user(client, people):
-    assert client.post("/interest/999").status_code == 404
+    resp = client.post("/interest/999")
+    assert resp.status_code == 404
+    assert resp.get_json()["error"] == "User not found"
+
 
 
 def test_duplicate_interest(client, people):
@@ -106,11 +108,9 @@ def test_person_without_profile_still_listed(client, people):
 
 
 # ---------- mutual ----------
-
 def test_mutual_needs_both_sides(client, people):
     client.post(f"/interest/{people['stuti']}")       # only one direction
     assert client.get("/interest/mutual").get_json() == []
-
 
 def test_mutual_match(client, people):
     client.post(f"/interest/{people['stuti']}")       # arpan -> stuti
@@ -123,7 +123,6 @@ def test_mutual_match(client, people):
     login_as(client, "arpan")
     assert user_ids(client.get("/interest/mutual")) == [people["stuti"]]
 
-
 # ---------- withdraw ----------
 def test_withdraw(client, people):
     client.post(f"/interest/{people['stuti']}")
@@ -134,7 +133,9 @@ def test_withdraw(client, people):
 
 
 def test_withdraw_nothing(client, people):
-    assert client.delete(f"/interest/{people['stuti']}").status_code == 404
+    resp = client.delete(f"/interest/{people['stuti']}")
+    assert resp.status_code == 404
+    assert resp.get_json()["error"] == "You haven't shown interest in this user."
 
 
 def test_withdraw_breaks_mutual(client, people):
