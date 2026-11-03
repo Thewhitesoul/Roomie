@@ -13,10 +13,14 @@ def close_db(e=None):
     if db is not None:
         db.close()
 def init_db():
-    """WARNING:DELETES THE EXISTING DATA"""
-    db=get_db()
+    """Create missing tables and indexes without deleting existing data."""
+    db = get_db()
     with current_app.open_resource("schema.sql") as f:
-        db.executescript(f.read().decode("utf8"))
+        try:
+            db.executescript(f.read().decode("utf8"))
+        except sqlite3.Error:
+            db.rollback()
+            raise
 
 @click.command("init-db")
 @with_appcontext
