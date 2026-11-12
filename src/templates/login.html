@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Log In | Roomie{% endblock %}
+
+{% block content %}
+<section class="form-card">
+    <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+    <h1>Welcome back</h1>
+    <p>Log in to find your next roommate.</p>
+
+    <form data-preview-form>
+        <label for="email">Email</label>
+        <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+        >
+
+        <label for="password">Password</label>
+        <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            required
+        >
+
+        <button type="submit" disabled>Preview login</button>
+        <p class="form-feedback" role="status" aria-live="polite"></p>
+        <noscript><p class="notice">Preview only: this form does not submit or save data.</p></noscript>
+    </form>
+
+    <p>This preview does not sign you in.</p>
+</section>
+{% endblock %}

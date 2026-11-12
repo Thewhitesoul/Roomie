@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Preferences | Roomie{% endblock %}
+
+{% block content %}
+<section class="form-card">
+    <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+    <h1>Your roommate preferences</h1>
+    <p>Tell us what living arrangement suits you.</p>
+
+    <form data-preview-form>
+        <label for="cleanliness">Cleanliness</label>
+        <select id="cleanliness" name="cleanliness">
+            <option value="any">No preference</option>
+            <option value="relaxed">Relaxed</option>
+            <option value="moderate">Moderate</option>
+            <option value="very_clean">Very clean</option>
+        </select>
+
+        <label for="sleep_schedule">Sleep schedule</label>
+        <select id="sleep_schedule" name="sleep_schedule">
+            <option value="any">No preference</option>
+            <option value="early">Early sleeper</option>
+            <option value="late">Night owl</option>
+            <option value="flexible">Flexible</option>
+        </select>
+
+        <label for="study_habits">Study environment</label>
+        <select id="study_habits" name="study_habits">
+            <option value="any">No preference</option>
+            <option value="quiet">Quiet</option>
+            <option value="social">Social</option>
+            <option value="mixed">A mix of both</option>
+        </select>
+
+        <label for="smoking_preference">Smoking</label>
+        <select id="smoking_preference" name="smoking_preference">
+            <option value="any">No preference</option>
+            <option value="non_smoking">Non-smoking</option>
+            <option value="smoking_ok">Smoking is okay</option>
+        </select>
+
+        <label for="pet_preference">Pets</label>
+        <select id="pet_preference" name="pet_preference">
+            <option value="any">No preference</option>
+            <option value="no_pets">No pets</option>
+            <option value="pets_ok">Pets are okay</option>
+        </select>
+
+        <label for="budget">Monthly housing budget ($)</label>
+        <input id="budget" name="budget" type="number"
+               min="0" step="0.01" placeholder="Optional">
+
+        <button type="submit" disabled>Save preferences — preview</button>
+        <p class="form-feedback" role="status" aria-live="polite"></p>
+        <noscript><p class="notice">Preview only: this form does not submit or save data.</p></noscript>
+    </form>
+
+    <p>This preview does not save your preferences yet.</p>
+</section>
+{% endblock %}

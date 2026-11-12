@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile | Roomie{% endblock %}
+
+{% block content %}
+<section class="form-card">
+    <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+    <h1>Build your profile</h1>
+    <p>Help potential roommates get to know you.</p>
+
+    <form data-preview-form>
+        <label for="name">Display name</label>
+        <input id="name" name="name" type="text"
+               maxlength="80" required>
+
+        <label for="age">Age</label>
+        <input id="age" name="age" type="number"
+               min="18" max="120" required>
+
+        <label for="location">Preferred location</label>
+        <input id="location" name="location" type="text"
+               maxlength="100" placeholder="Example: Topeka"
+               required>
+
+        <label for="housing_status">Housing situation</label>
+        <select id="housing_status" name="housing_status" required>
+            <option value="">Choose an option</option>
+            <option value="needs_housing">I need housing</option>
+            <option value="has_housing">I already have housing</option>
+        </select>
+
+        <label for="interests">Interests</label>
+        <textarea id="interests" name="interests"
+                  maxlength="500" rows="3"
+                  placeholder="Music, soccer, cooking..."></textarea>
+
+        <label for="bio">About you</label>
+        <textarea id="bio" name="bio"
+                  maxlength="500" rows="4"
+                  placeholder="What would living with you be like?"></textarea>
+
+        <button type="submit" disabled>Save profile — preview</button>
+        <p class="form-feedback" role="status" aria-live="polite"></p>
+        <noscript><p class="notice">Preview only: this form does not submit or save data.</p></noscript>
+    </form>
+
+    <p>This preview does not save your information yet.</p>
+</section>
+{% endblock %}
