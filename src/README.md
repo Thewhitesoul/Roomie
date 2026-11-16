@@ -47,14 +47,53 @@ submission names in this preview, as in the original templates.
   validation, and explicit preview feedback. Reduced-motion styling removes
   transitions when requested by the user's operating system.
 
+### Authentication integration
+
+The preview defaults to logged out. `/profile` and `/preferences` now redirect
+anonymous requests to `/login?next=...`; public sample profiles and matches remain
+available. No login, session, logout, or CSRF implementation exists in this branch.
+
+The backend must load a verified user from its authenticated session on every
+request into `g.current_user`, with `is_authenticated`, `display_name` (optional),
+and `username`. Both navigation and private route guards use this same user.
+Never populate it from request parameters or browser flags. If adopting
+Flask-Login, adapt `authenticated_user()` to its verified `current_user` instead.
+
+Before enabling authenticated requests, the backend must also provide:
+
+- Real credential verification and session creation in login, replacing the
+  preview form behavior. Validate any `next` destination as local before redirecting.
+- A `logout` endpoint accepting POST only and the CSRF provider's `csrf_token()`
+  template helper. The prepared logout form submits `csrf_token` to this endpoint.
+  Enable server-side CSRF validation; reject invalid tokens before changing state.
+- Logout that clears the authenticated session (and remember-me authentication,
+  if used) and redirects home. Use the chosen authentication library's logout
+  mechanism; do not merely change the displayed navigation.
+
+Without these connections, successful login/logout cannot be demonstrated. No
+fake login or unprotected logout endpoint has been introduced. The authenticated
+layout deliberately requires the backend logout endpoint and CSRF helper.
+
 ### Verification
 
-Flask test-client checks passed for all nine page URLs (including three individual
-profiles), all linked pages and static assets, an empty matches list, and a 404
-for an unknown profile. Preview form endpoints reject POST requests. JavaScript
-syntax passed `node --check src/static/app.js`, and the running homepage returned
-HTTP 200 on port 5002. There are no executable tests in `tests/` yet.
+Run the executable server/template checks with:
 
-Browser rendering and interaction checks have not been performed. Before merging,
-check 360px, 768px, and desktop widths for overflow; exercise the mobile menu,
-keyboard focus, form validation, profile links, and preview interest feedback.
+```bash
+./.venv/bin/python -m unittest discover -s tests -v
+node --check src/static/app.js
+```
+
+Four tests cover public/logged-out navigation, registration links, private route
+redirects, rejection of an unverified user, and the authenticated template contract
+using explicit test-only user/URL/token fixtures. These fixtures do not implement
+or verify a real login, logout, or CSRF validator. Private view access is checked
+with rendering mocked because the backend logout and CSRF facilities are absent.
+
+The dropdown supports native Enter/Space activation, Tab navigation, ArrowDown/Up
+to open and focus its first/last control, Escape with focus restoration, outside
+click dismissal, and closing when focus leaves. Without JavaScript its links and
+POST form remain expanded and usable. At mobile widths the dropdown is in normal
+flow with full-width controls. Browser interaction and mobile rendering have not
+been verified; manually exercise these at 360px, 768px, and desktop widths before
+merging. Real successful login, profile/preferences use, and logout must be tested
+end to end after backend integration.

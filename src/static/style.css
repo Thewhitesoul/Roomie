@@ -22,6 +22,20 @@ nav a { color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: n
 nav a:hover, nav a[aria-current] { text-decoration: underline; text-decoration-thickness: 2px; }
 nav .nav-cta { background: var(--ink); color: white; border-radius: 10px; padding: 11px 17px; }
 .menu-toggle { width: auto; margin: 0; background: var(--ink); color: white; padding: 10px 14px; }
+.account-dropdown { position: relative; min-width: 0; }
+.account-dropdown .account-toggle { background: #ffffff80; border: 1px solid #ffffffb3; color: var(--ink); font-size: 13px; padding: 10px 14px; max-width: 240px; }
+.account-toggle span:first-child { overflow-wrap: anywhere; text-align: left; }
+.account-dropdown button:hover, .account-dropdown button:active { transform: none; }
+.account-links { position: absolute; right: 0; top: calc(100% + 10px); width: 220px; padding: 8px; border: 1px solid #ffffffb3; border-radius: 16px; background: #edf7ff; box-shadow: var(--shadow); }
+@supports ((backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px))) { .account-links { background: #fdfdfeee; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); } }
+.account-links a, .account-links button { display: block; width: 100%; padding: 12px; border-radius: 8px; text-align: left; font-size: 14px; }
+.account-links form { margin: 4px 0 0; border-top: 1px solid var(--line); }
+.account-links button { margin: 4px 0 0; background: transparent; color: #a51e0c; }
+.account-links a:hover, .account-links button:hover { background: #d9ecfa; box-shadow: none; }
+@media (max-width: 800px) {
+  .account-dropdown .account-toggle { width: 100%; max-width: none; font-size: 14px; }
+  .account-links { position: static; width: 100%; margin-top: 8px; }
+}
 main { width: min(1280px, calc(100% - 64px)); margin: 58px auto 80px; }
 h1, h2, h3, p { overflow-wrap: break-word; }
 h1, h2, h3 { line-height: 1.1; letter-spacing: -0.045em; }

@@ -1,3 +1,35 @@
+// Disclosure navigation: native buttons support Enter/Space; Tab visits links.
+const account = document.querySelector('.account-dropdown');
+if (account) {
+  const toggle = account.querySelector('.account-toggle');
+  const links = account.querySelector('.account-links');
+  const setOpen = open => {
+    toggle.setAttribute('aria-expanded', String(open));
+    links.hidden = !open;
+  };
+  setOpen(false);
+  toggle.addEventListener('click', () => setOpen(links.hidden));
+  account.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !links.hidden) {
+      event.preventDefault();
+      setOpen(false);
+      toggle.focus();
+    }
+    if (event.target === toggle && ['ArrowDown', 'ArrowUp'].includes(event.key)) {
+      event.preventDefault();
+      setOpen(true);
+      const items = links.querySelectorAll('a, button');
+      items[event.key === 'ArrowDown' ? 0 : items.length - 1].focus();
+    }
+  });
+  document.addEventListener('click', event => {
+    if (!account.contains(event.target)) setOpen(false);
+  });
+  account.addEventListener('focusout', event => {
+    if (!account.contains(event.relatedTarget)) setOpen(false);
+  });
+}
+
 /* Progressive enhancement: navigation stays available if JavaScript is off. */
 const menu = document.querySelector('.menu-toggle');
 const nav = document.querySelector('#main-nav');
