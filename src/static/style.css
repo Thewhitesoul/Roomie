@@ -15,8 +15,7 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .skip-link:focus { top: 10px; }
 .site-header { max-width: 1320px; margin: 24px auto 0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border: 1px solid #ffffffb3; border-radius: 22px; background: #edf7ff; box-shadow: 0 8px 32px #10243a12; position: relative; z-index: 5; }
 @supports ((backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px))) { .site-header { background: #fdfdfecc; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); } }
-.brand { display: inline-flex; align-items: center; gap: 4px; color: var(--ink); font-size: 32px; font-weight: 900; letter-spacing: -2px; text-decoration: none; line-height: 1; }
-.brand span { color: #bd240e; font-size: 36px; }
+.brand { display: inline-flex; align-items: center; color: var(--ink); font-size: 32px; font-weight: 900; letter-spacing: -2px; text-decoration: none; line-height: 1; }
 nav { display: flex; align-items: center; gap: 22px; }
 nav a { color: var(--ink); font-size: 13px; font-weight: 700; text-decoration: none; padding: 8px 0; }
 nav a:hover, nav a[aria-current] { text-decoration: underline; text-decoration-thickness: 2px; }
@@ -57,7 +56,6 @@ h3 { font-size: 22px; }
 .hero-note { font-size: 12px; margin-top: 22px; }
 .card-stage { position: relative; height: 610px; min-width: 0; }
 .orbit { position: absolute; width: 95%; aspect-ratio: 1; border: 1px solid #ffffffa8; border-radius: 50%; top: 55px; left: 0; }
-.spark { position: absolute; right: 3%; top: 2%; font-size: 110px; color: var(--red); line-height: 1; }
 .floating-card { position: absolute; width: 248px; padding: 9px; border-radius: 18px; background: var(--cloud); color: var(--ink); box-shadow: 0 18px 35px #10243a30; text-decoration: none; transition: transform .25s, box-shadow .25s; }
 .floating-1 { top: 8px; left: 0; transform: rotate(-9deg); z-index: 2; }
 .floating-2 { top: 140px; right: 0; transform: rotate(9deg); z-index: 3; }
@@ -134,7 +132,7 @@ footer small { margin-left: auto; color: var(--muted); }
   .hero-description { max-width: 530px; }
   .card-stage { width: min(100%, 510px); margin: 40px auto 0; height: 590px; }
   .floating-1 { left: 6%; } .floating-2 { right: 5%; top: 140px; } .floating-3 { left: 9%; top: 300px; }
-  .spark { right: 8%; } .stage-sticker { right: 5%; bottom: 40px; }
+  .stage-sticker { right: 5%; bottom: 40px; }
   .how-it-works { margin-top: 25px; padding: 26px; } .steps { gap: 20px; }
   .profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .detail-card { grid-template-columns: 1fr; } .detail-portrait { min-height: 300px; }
@@ -147,7 +145,6 @@ footer small { margin-left: auto; color: var(--muted); }
   .floating-card { width: 185px; } .floating-card .portrait { min-height: 170px; }
   .floating-1 { left: 4%; } .floating-2 { right: 3%; top: 155px; } .floating-3 { left: 4%; top: 325px; }
   .card-stage { height: 605px; } .stage-sticker { bottom: 4px; right: 2%; }
-  .spark { font-size: 80px; right: 4%; top: 30px; }
   .steps, .profile-grid { grid-template-columns: 1fr; } .how-it-works h2 { font-size: 32px; }
   .detail-copy { padding: 24px 12px; } .detail-copy h1 { font-size: 40px; }
   footer { gap: 16px; padding-left: 20px; padding-right: 20px; } footer small { margin: 0; }

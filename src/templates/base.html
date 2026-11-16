@@ -11,7 +11,7 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <a class="brand" href="{{ url_for('home') }}" aria-label="Roomie home">roomie<span aria-hidden="true">✳</span></a>
+    <a class="brand" href="{{ url_for('home') }}" aria-label="Roomie home">roomie</a>
     <nav id="main-nav" aria-label="Main navigation">
       {% for endpoint, label in [('home', 'Home'), ('matches', 'Find roommates')] %}
       <a {% if endpoint == 'register' %}class="nav-cta"{% endif %} href="{{ url_for(endpoint) }}" {% if request.endpoint == endpoint or (endpoint == 'matches' and request.endpoint == 'profile_detail') %}aria-current="page"{% endif %}>{{ label }}</a>
@@ -39,6 +39,6 @@
     </nav>
   </header>
   <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
-  <footer><a class="brand" href="{{ url_for('home') }}">roomie<span aria-hidden="true">✳</span></a><p>Good company starts at home.</p><small>CM333 team project · Fictional profiles · Frontend preview</small></footer>
+  <footer><a class="brand" href="{{ url_for('home') }}">roomie</a><p>Good company starts at home.</p><small>CM333 team project · Fictional profiles · Frontend preview</small></footer>
 </body>
 </html>
