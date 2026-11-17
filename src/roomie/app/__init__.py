@@ -6,7 +6,7 @@ from . import auth
 from . import profile
 from .matches import matches_bp
 from .interests import interest_bp
-
+from .preferences import preferences_bp
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
@@ -26,7 +26,7 @@ def create_app(test_config=None):
     app.register_blueprint(profiles_bp)
     app.register_blueprint(matches_bp)
     app.register_blueprint(interest_bp)
-
+    app.register_blueprint(preferences_bp)
     @app.get("/health")
     def health():
         return {"status": "ok"}
