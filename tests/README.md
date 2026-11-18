@@ -502,3 +502,38 @@ Rajju, responsible for testing and QA, should update test names, commands, and i
 Backend, frontend, and database contributors should coordinate changes affecting form fields, routes, session handling, and stored data.
 
 **Important:** Requirement IDs in this document follow the FR-01 through FR-11 mapping supplied in the requirements-based plan. Verify them against the latest `docs/requirements.md` before final approval.
+## 13. Initial Testing Results – November 16, 2026
+
+### Test Environment
+- ChromeOS Linux
+- Python 3.13.5
+- Flask 3.1.3
+- Pytest 9.2.0
+
+### Initial Test Results
+Command: `python -m pytest -v`
+
+- Tests collected: 4
+- Passed: 4
+- Failed: 0
+
+### Tests Verified
+- Public navigation and registration.
+- Unauthenticated redirects from profile and preferences.
+- Rejection of an unverified user.
+- Authenticated-user template behavior using test fixtures.
+
+### Current Limitations
+The current main branch contains the Flask preview application and frontend templates. Backend authentication, SQLite integration, profile management, roommate matching, and interest functionality were not found in the inspected source files.
+
+The four passing tests verify preview behavior only, not the complete MVP.
+
+### Pending Testing Work
+- Registration, login, and logout.
+- Profile creation and editing.
+- Preferences and SQLite persistence.
+- Roommate matching and filtering.
+- Profile privacy and ownership.
+- Interest creation, changes, and removal.
+- Self-interest prevention.
+- Protected-page authorization.
