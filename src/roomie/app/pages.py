@@ -4,7 +4,7 @@ from flask import Blueprint, abort, g, redirect, render_template, request, sessi
 
 pages_bp = Blueprint("pages", __name__)
 
-# Fake data copied from preview.py. Replace with real queries in a later step.
+# Fictional sample data from the old frontend preview. Replace with real queries in a later step.
 SAMPLE_PROFILES = [
     {
         "user_id": 1,

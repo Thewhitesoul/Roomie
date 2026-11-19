@@ -537,3 +537,48 @@ The four passing tests verify preview behavior only, not the complete MVP.
 - Interest creation, changes, and removal.
 - Self-interest prevention.
 - Protected-page authorization.
+
+## 14. Testing Results – November 19, 2026
+
+### Test Environment
+- Windows 11
+- Python 3.13.3
+- Flask 3.1.3
+- Pytest 9.1.1
+
+### Test Results
+Command (run from `src/roomie`): `python -m pytest tests -v`
+
+- Tests collected: 110
+- Passed: 110
+- Failed: 0
+
+| File | Tests | Covers |
+|---|---|---|
+| `test_auth.py` | 21 | Registration, password rules, login, logout, `/api/auth/me` |
+| `test_db.py` | 11 | Tables, connections, constraints, cascade deletes |
+| `test_profiles.py` | 22 | Profile create/view/update, validation, ownership |
+| `test_matches.py` | 24 | Ranking, budget/location/interest filters, limit, bad input |
+| `test_interest.py` | 17 | Show/withdraw interest, sent/received/mutual lists |
+| `test_pages.py` | 15 | Pages, navbar logged out and in, redirects, logout |
+
+### Changes Since November 16
+- The frontend and backend now run as one Flask app (`flask --app app run`
+  from `src/roomie`). `src/preview.py` and `tests/test_navigation.py` were removed.
+- The JSON API moved under `/api/...` so the HTML pages can use `/matches` and
+  `/profiles/<id>`.
+- The four preview tests were replaced by `test_pages.py`, which uses a real
+  registered user instead of test-only fixtures.
+
+### Current Limitations
+- The login, register, profile and preferences forms are still preview-only and
+  do not call the API. Registration, login and logout are tested through the API,
+  not through the forms.
+- Pages show fictional sample profiles, not database data.
+- Browser and mobile rendering have not been checked manually.
+
+### Pending Testing Work
+- End-to-end form submission once the forms are connected to the API.
+- Pages showing real profiles and matches.
+- Preferences persistence (most preference fields are not stored yet).
+- Manual browser checks at 360px, 768px, and desktop widths.
