@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Find Roommates | Roomie{% endblock %}
+{% block content %}
+<section class="matches-section">
+  <p class="eyebrow">A SHARED SPACE STARTS WITH A HELLO</p><h1>Find your people.</h1>
+  <p class="section-intro">Different personalities. A little common ground. Explore who could feel like home.</p>
+  <p class="notice">Meet Alex, Jordan, and Taylor: fictional profiles for this frontend preview. Matching and filtering are not connected yet.</p>
+  <div class="profile-grid">
+  {% for person in matches %}
+    <article class="profile-card">
+      <div class="portrait portrait-{{ loop.index }}" aria-hidden="true"><span class="portrait-initial">{{ person.name[0] }}</span><span class="portrait-tag">{{ person.interests.split(',')[0] }} enthusiast</span></div>
+      <div class="profile-card-body"><p class="eyebrow">MEET YOUR POTENTIAL ROOMIE</p><h2>{{ person.name }}, {{ person.age }}</h2><p class="profile-location">{{ person.location }}</p><p>{{ person.bio }}</p><div class="tags">{% for interest in person.interests.split(',') %}<span>{{ interest.strip() }}</span>{% endfor %}</div><a class="button secondary" href="{{ url_for('profile_detail', user_id=person.user_id) }}">View profile <span aria-hidden="true">↗</span></a></div>
+    </article>
+  {% else %}
+    <div class="empty-state"><h2>A little more room to explore.</h2><p>No roommates found. Try different preferences.</p><a class="button secondary" href="{{ url_for('preferences') }}">Edit preferences</a></div>
+  {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -44,6 +44,7 @@ Detailed housing searches, real-time messaging, payments, background checks, adv
 ```text
 Roomie/
 ├── docs/
+│   ├── database-design.md
 │   └── requirements.md
 ├── src/
 │   └── README.md
@@ -58,7 +59,7 @@ Application code will be added under `src/`, and automated tests will be added u
 
 ## Getting Started
 
-The project is currently in the requirements and setup stage.
+The project is currently in the requirements, design, and initial implementation stage.
 
 ```bash
 git clone https://github.com/Thewhitesoul/Roomie.git
@@ -66,6 +67,12 @@ cd Roomie
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
+
+Windows users can activate the virtual environment with:
+
+```powershell
+venv\Scripts\activate
 ```
 
 ## Team Workflow
@@ -78,11 +85,7 @@ pip install -r requirements.txt
 
 ## Team
 
-- Swikar
-- Stuti
-- Arpan
-- Rajju
-
-## Current Status
-
-Milestone 4: Requirements Document and GitHub Setup.
+- Stuti — Project Manager, Documentation, and Database
+- Swikar — UI/UX and Frontend
+- Arpan — Backend
+- Rajju — Testing/QA and Integration

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | Roomie{% endblock %}
+
+{% block content %}
+<section class="form-card">
+    <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+    <h1>Create your account</h1>
+    <p>Start finding your next roommate.</p>
+
+    <form data-preview-form>
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text"
+               autocomplete="username" required>
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email"
+               autocomplete="email" required>
+
+        <label for="password">Password</label>
+        <input id="password" type="password"
+               autocomplete="new-password"
+               minlength="12" required>
+
+        <label for="confirm_password">Confirm password</label>
+        <input id="confirm_password" type="password"
+               autocomplete="new-password"
+               minlength="12" required>
+
+        <button type="submit" disabled>Create account — preview</button>
+        <p class="form-feedback" role="status" aria-live="polite"></p>
+        <noscript><p class="notice">Preview only: this form does not submit or save data.</p></noscript>
+    </form>
+
+    <p>Account creation will be connected to the backend later.</p>
+    <p>
+        Already have an account?
+        <a href="{{ url_for('login') }}">Log in</a>
+    </p>
+</section>
+{% endblock %}
