@@ -12,8 +12,10 @@ USERNAME_RE = re.compile(r"^[A-Za-z0-9_]{3,30}$")
 MIN_PASSWORD_LENGTH = 8
 
 def get_input():
-    return request.get_json(silent=True)
-
+    if request.is_json:
+        data = request.get_json(silent=True)
+        return data if isinstance(data, dict) else {}
+    return request.form.to_dict()
 def next_user_id(users):
     numbers = [int(u["id"].split("-")[1]) for u in users if u.get("id", "").startswith("user-")]
     return f"user-{max(numbers, default=0) + 1:03d}"    
@@ -68,7 +70,11 @@ def register():
     try:
         cur = db.execute(
             "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-            (username, email, generate_password_hash(password)),
+            (
+                username,
+                email,
+                generate_password_hash(password, method="pbkdf2:sha256:1000000"),
+            ),
         )
         db.commit()
     except sqlite3.IntegrityError:

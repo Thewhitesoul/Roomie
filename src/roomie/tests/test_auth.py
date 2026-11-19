@@ -14,7 +14,7 @@ def user_count(app):
 def test_register_success(client, app):
     resp = register(client)
     assert resp.status_code == 201
-    assert resp.get_json()["user"]["id"] == "user-001"
+    assert resp.get_json()["user"]["id"] == 1
     with app.app_context():
         saved = get_db().execute("SELECT * FROM users WHERE id=1").fetchone()
     assert saved["email"] == "arpan@washburn.edu"
