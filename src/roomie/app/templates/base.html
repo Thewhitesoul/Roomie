@@ -11,10 +11,10 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <a class="brand" href="{{ url_for('home') }}" aria-label="Roomie home">roomie<span aria-hidden="true">✳</span></a>
+    <a class="brand" href="{{ url_for('pages.home') }}" aria-label="Roomie home">roomie<span aria-hidden="true">✳</span></a>
     <nav id="main-nav" aria-label="Main navigation">
-      {% for endpoint, label in [('home', 'Home'), ('matches', 'Find roommates')] %}
-      <a {% if endpoint == 'register' %}class="nav-cta"{% endif %} href="{{ url_for(endpoint) }}" {% if request.endpoint == endpoint or (endpoint == 'matches' and request.endpoint == 'profile_detail') %}aria-current="page"{% endif %}>{{ label }}</a>
+      {% for endpoint, label in [('pages.home', 'Home'), ('pages.matches', 'Find roommates')] %}
+      <a {% if endpoint == 'pages.register' %}class="nav-cta"{% endif %} href="{{ url_for(endpoint) }}" {% if request.endpoint == endpoint or (endpoint == 'pages.matches' and request.endpoint == 'pages.profile_detail') %}aria-current="page"{% endif %}>{{ label }}</a>
       {% endfor %}
       {% if nav_user %}
       <div class="account-dropdown">
@@ -22,23 +22,21 @@
           <span>{{ nav_user.display_name or nav_user.username }}</span><span aria-hidden="true">▾</span>
         </button>
         <div class="account-links" id="account-links">
-          {% for endpoint, label in [('profile', 'My profile'), ('preferences', 'Preferences')] %}
+          {% for endpoint, label in [('pages.profile', 'My profile'), ('pages.preferences', 'Preferences')] %}
           <a href="{{ url_for(endpoint) }}" {% if request.endpoint == endpoint %}aria-current="page"{% endif %}>{{ label }}</a>
           {% endfor %}
-          {# The authentication backend must supply logout and csrf_token(). #}
-          <form method="post" action="{{ url_for('logout') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <form method="post" action="{{ url_for('pages.logout') }}">
             <button type="submit">Log out</button>
           </form>
         </div>
       </div>
       {% else %}
-      <a href="{{ url_for('login') }}" {% if request.endpoint == 'login' %}aria-current="page"{% endif %}>Log in</a>
-      <a class="nav-cta" href="{{ url_for('register') }}" {% if request.endpoint == 'register' %}aria-current="page"{% endif %}>Get started</a>
+      <a href="{{ url_for('pages.login') }}" {% if request.endpoint == 'pages.login' %}aria-current="page"{% endif %}>Log in</a>
+      <a class="nav-cta" href="{{ url_for('pages.register') }}" {% if request.endpoint == 'pages.register' %}aria-current="page"{% endif %}>Get started</a>
       {% endif %}
     </nav>
   </header>
   <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
-  <footer><a class="brand" href="{{ url_for('home') }}">roomie<span aria-hidden="true">✳</span></a><p>Good company starts at home.</p><small>CM333 team project · Fictional profiles · Frontend preview</small></footer>
+  <footer><a class="brand" href="{{ url_for('pages.home') }}">roomie<span aria-hidden="true">✳</span></a><p>Good company starts at home.</p><small>CM333 team project · Fictional profiles · Frontend preview</small></footer>
 </body>
 </html>

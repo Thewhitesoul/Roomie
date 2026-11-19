@@ -5,12 +5,12 @@
   <div class="hero-copy">
     <h1>GOOD<br>ROOMMATES.<br>BETTER<br><span>STORIES.</span></h1>
     <p class="hero-description">Shared space. Your kind of people. Meet college roommates who fit your everyday life, from quiet study nights to spontaneous coffee runs.</p>
-    <div class="hero-actions"><a class="button primary" href="{{ url_for('matches') }}">Find your people <span aria-hidden="true">↗</span></a>{% if not nav_user %}<a class="text-link" href="{{ url_for('register') }}">Get started <span aria-hidden="true">→</span></a>{% endif %}</div>
+    <div class="hero-actions"><a class="button primary" href="{{ url_for('pages.matches') }}">Find your people <span aria-hidden="true">↗</span></a>{% if not nav_user %}<a class="text-link" href="{{ url_for('pages.register') }}">Get started <span aria-hidden="true">→</span></a>{% endif %}</div>
   </div>
   <div class="card-stage" aria-label="Meet our fictional preview roommates">
     <span class="orbit" aria-hidden="true"></span><span class="spark" aria-hidden="true">✳</span>
     {% for person in featured_profiles %}
-    <a class="floating-card floating-{{ loop.index }}" href="{{ url_for('profile_detail', user_id=person.user_id) }}">
+    <a class="floating-card floating-{{ loop.index }}" href="{{ url_for('pages.profile_detail', user_id=person.user_id) }}">
       <div class="portrait portrait-{{ loop.index }}"><span class="portrait-initial">{{ person.name[0] }}</span><span class="portrait-tag">{{ person.interests.split(',')[0] }} enthusiast</span></div>
       <div class="floating-info"><div><h2>{{ person.name }}, {{ person.age }}</h2><p>{{ person.location }} · Preview profile</p></div><span class="round-arrow" aria-hidden="true">↗</span></div>
     </a>

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ profile.name }} | Roomie{% endblock %}
 {% block content %}
-<a class="back-link" href="{{ url_for('matches') }}">← Back to roommates</a>
+<a class="back-link" href="{{ url_for('pages.matches') }}">← Back to roommates</a>
 <article class="detail-card">
   <div class="detail-portrait portrait portrait-{{ profile.user_id }}" aria-hidden="true"><span class="portrait-initial">{{ profile.name[0] }}</span><span class="portrait-tag">A new chapter starts here.</span></div>
   <div class="detail-copy"><p class="eyebrow">SAY HELLO TO YOUR POTENTIAL ROOMIE</p><h1>{{ profile.name }}, {{ profile.age }}</h1><p class="profile-location">{{ profile.location }} · Fictional preview profile</p><h2>About me</h2><p>{{ profile.bio }}</p><h2>Common ground</h2><div class="tags">{% for interest in profile.interests.split(',') %}<span>{{ interest.strip() }}</span>{% endfor %}</div>

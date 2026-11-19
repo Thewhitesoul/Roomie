@@ -9,10 +9,10 @@
   {% for person in matches %}
     <article class="profile-card">
       <div class="portrait portrait-{{ loop.index }}" aria-hidden="true"><span class="portrait-initial">{{ person.name[0] }}</span><span class="portrait-tag">{{ person.interests.split(',')[0] }} enthusiast</span></div>
-      <div class="profile-card-body"><p class="eyebrow">MEET YOUR POTENTIAL ROOMIE</p><h2>{{ person.name }}, {{ person.age }}</h2><p class="profile-location">{{ person.location }}</p><p>{{ person.bio }}</p><div class="tags">{% for interest in person.interests.split(',') %}<span>{{ interest.strip() }}</span>{% endfor %}</div><a class="button secondary" href="{{ url_for('profile_detail', user_id=person.user_id) }}">View profile <span aria-hidden="true">↗</span></a></div>
+      <div class="profile-card-body"><p class="eyebrow">MEET YOUR POTENTIAL ROOMIE</p><h2>{{ person.name }}, {{ person.age }}</h2><p class="profile-location">{{ person.location }}</p><p>{{ person.bio }}</p><div class="tags">{% for interest in person.interests.split(',') %}<span>{{ interest.strip() }}</span>{% endfor %}</div><a class="button secondary" href="{{ url_for('pages.profile_detail', user_id=person.user_id) }}">View profile <span aria-hidden="true">↗</span></a></div>
     </article>
   {% else %}
-    <div class="empty-state"><h2>A little more room to explore.</h2><p>No roommates found. Try different preferences.</p><a class="button secondary" href="{{ url_for('preferences') }}">Edit preferences</a></div>
+    <div class="empty-state"><h2>A little more room to explore.</h2><p>No roommates found. Try different preferences.</p><a class="button secondary" href="{{ url_for('pages.preferences') }}">Edit preferences</a></div>
   {% endfor %}
   </div>
 </section>
