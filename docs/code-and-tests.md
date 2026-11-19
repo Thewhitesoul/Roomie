@@ -1,32 +1,27 @@
 # Roomie Code and Test Reference
 
-This document explains what each function in the Roomie back end does and what each automated test checks. The code lives in `src/roomie/app/` and the tests live in `src/roomie/tests/`.
+This document explains what each function in the Roomie backend does and what each automated test checks. The code lives in `src/roomie/app/` and the tests live in `src/roomie/tests/`.
 
 ## Current test status
 
-**85 of 87 tests pass.** This was last checked on 2026-11-01.
+**127 tests passed.** Last checked on 2026-11-19.
 
-| Test file | Tests | Result |
-|---|---:|---|
-| `test_db.py` | 11 | All pass |
-| `test_interest.py` | 17 | All pass |
-| `test_matches.py` | 21 | All pass |
-| `test_profiles.py` | 22 | All pass |
-| `tests_auth.py` | 16 | 2 fail (issues 1 and 2 below) |
+This includes 41 profile tests and 16 authentication tests.
 
-To run all the tests, start in `src/roomie` and run both commands. The first command skips `tests_auth.py` because its name doesn't match pytest's `test_*.py` pattern, and adding the file to the same command doesn't bring it back.
+To run the full suite, activate your virtual environment, start in `src/roomie`, and run:
 
-```powershell
-.\.venv\Scripts\python.exe -m pytest tests
-.\.venv\Scripts\python.exe -m pytest tests/tests_auth.py
+```bash
+python -m pytest tests -q
 ```
+
+Authentication tests are now in `test_auth.py`, so pytest discovers them automatically.
 
 ## Known issues
 
 | # | Issue | Effect |
 |---:|---|---|
-| 1 | `test_register_success` expects the ID `"user-001"` | The test is out of date. IDs became integers in the move to SQLite, so the API correctly returns `1`. |
-| 2 | `register` and `login` assume the request body is a JSON object | Form data, a missing body or a JSON array returns a 500 error. `test_register_works_with_html_form` fails because of this. |
+| 1 | Resolved: registration test expected `"user-001"` | Updated the test to expect SQLite integer ID `1`; authentication tests pass. |
+| 2 | Resolved: authentication input handling | `get_input()` now accepts HTML form data and JSON objects, and returns an empty dictionary for invalid or non-object JSON. The HTML form registration test passes. |
 | 3 | `_clean` also assumes a JSON object | Sending a JSON array to `POST /profiles` returns a 500 error. `PUT /profiles/me` uses the same check. |
 | 4 | `_whole_number` accepts characters such as `²`, which `isdigit()` counts as digits but `int()` rejects | `GET /matches?max_budget=²` returns a 500 error instead of a 400. |
 | 5 | `limit or DEFAULT_LIMIT` treats 0 as "not set" | `GET /matches?limit=0` uses the default limit of 20 instead of returning no results. |
@@ -99,7 +94,7 @@ Deleting a user also deletes their profile, interests and connection requests.
 
 | Function | What it does |
 |---|---|
-| `get_input()` | Reads the JSON request body, or returns `None` if it can't. |
+| `get_input()` | Reads JSON objects or HTML form data. Returns an empty dictionary for invalid or non-object JSON. |
 | `next_user_id(users)` | Unused leftover from JSON storage (issue 6). |
 | `public(user)` | Keeps only the fields that are safe to return: ID, username, email and creation date. This leaves out the password hash. |
 | `_error(message, status)` | Builds a JSON error response. |
@@ -187,7 +182,7 @@ A "mutual match" means two users have each shown interest in the other.
 
 Helper: `_user(db, name)` adds a user directly to the database.
 
-### `tests/tests_auth.py`: accounts and login
+### `tests/test_auth.py`: accounts and login
 
 | Test | What it checks |
 |---|---|
