@@ -16,10 +16,10 @@ def _error(message, status):
 
 def _whole_number(name):
     """Read an optional whole-number query parameter. Returns (value, error)."""
-    raw = request.args.get(name)
-    if raw is None or raw.strip() == "":
+    raw =  (request.args.get(name) or "").strip()
+    if raw  == "":
         return None, None
-    if not raw.strip().isdigit():
+    if not (raw.isascii() and raw.isdigit()):
         return None, f"{name} must be a whole number of 0 or more."
     return int(raw), None
 
@@ -48,7 +48,7 @@ def find_matches():
     limit, err = _whole_number("limit")
     if err:
         return _error(err, 400)
-    limit = min(limit or DEFAULT_LIMIT, MAX_LIMIT)
+    limit =  DEFAULT_LIMIT if limit is None else min(limit, MAX_LIMIT)
 
     location = (request.args.get("location") or "").strip()
     # ?interest=gaming&interest=cooking -> profiles with ANY of these interests

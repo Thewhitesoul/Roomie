@@ -6,7 +6,7 @@ def register(client, username):
     resp = client.post("/auth/register", json={
         "username": username,
         "email": f"{username}@washburn.edu",
-        "password": "password123",
+        "password": "Password123!",
     })
     assert resp.status_code == 201
     return resp.get_json()["user"]["id"]
@@ -107,11 +107,16 @@ def test_filters_combine(town):
 def test_limit(town):
     assert len(town.get("/matches?limit=2").get_json()) == 2
 
+def test_limit_zero_returns_nothing(town):
+    assert town.get("/matches?limit=0").get_json() == []
+
 @pytest.mark.parametrize("query", [
     "max_budget=abc",
     "max_budget=-5",
     "min_budget=12.5",
     "limit=ten",
+    "limit=²",
+    "max_budget=²",
     "min_budget=900&max_budget=500",
 ])
 def test_bad_filters_return_400(town, query):

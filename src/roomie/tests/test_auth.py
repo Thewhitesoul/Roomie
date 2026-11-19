@@ -1,10 +1,11 @@
+import pytest
 from app.db import get_db
-def register(client, username="arpan", email="arpan@washburn.edu", password="password123"):
+def register(client, username="arpan", email="arpan@washburn.edu", password="Password123!"):
     return client.post("/auth/register", json={
         "username": username, "email": email, "password": password,
     })
 
-def login(client, email="arpan@washburn.edu", password="password123"):
+def login(client, email="arpan@washburn.edu", password="Password123!"):
     return client.post("/auth/login", json={"email": email, "password": password})
 
 def user_count(app):
@@ -14,11 +15,11 @@ def user_count(app):
 def test_register_success(client, app):
     resp = register(client)
     assert resp.status_code == 201
-    assert resp.get_json()["user"]["id"] == "user-001"
+    assert resp.get_json()["user"]["id"] == 1
     with app.app_context():
         saved = get_db().execute("SELECT * FROM users WHERE id=1").fetchone()
     assert saved["email"] == "arpan@washburn.edu"
-    assert saved["password_hash"] != "password123"    
+    assert saved["password_hash"] != "Password123!"    
     
 def test_register_does_not_return_password_hash(client):
     assert "password_hash" not in register(client).get_json()["user"]
@@ -41,6 +42,18 @@ def test_register_duplicate_username(client):
 def test_register_short_password(client):
     assert register(client, password="short").status_code == 400
 
+@pytest.mark.parametrize("password", [
+    "Pass12!",        # too short
+    "password123!",   # no uppercase
+    "PASSWORD123!",   # no lowercase
+    "Password123",    # no special character
+])
+def test_register_weak_password(client, password):
+    assert register(client, password=password).status_code == 400
+
+def test_register_strong_password(client):
+    assert register(client, password="Abcdefg!").status_code == 201
+
 def test_register_bad_email(client):
     assert register(client, email="not-an-email").status_code == 400
 
@@ -52,7 +65,7 @@ def test_register_missing_fields(client):
 
 def test_register_works_with_html_form(client):
     resp = client.post("/auth/register", data={
-        "username": "rajju", "email": "rajju@washburn.edu", "password": "password123",
+        "username": "rajju", "email": "rajju@washburn.edu", "password": "Password123!",
     })
     assert resp.status_code == 201
 # login/logout

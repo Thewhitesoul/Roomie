@@ -2,7 +2,7 @@ import pytest
 from app.db import get_db
 def register(client, username="arpan", email="arpan@washburn.edu"):
     resp = client.post("/auth/register", json={
-        "username": username, "email": email, "password": "password123",
+        "username": username, "email": email, "password": "Password123!",
     })
     return resp.get_json()["user"]["id"]
 

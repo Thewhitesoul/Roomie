@@ -7,19 +7,16 @@ from datetime import datetime, timezone
 from .db import get_db
 import sqlite3
 bp= Blueprint("auth", __name__, url_prefix="/auth")
-USERS_FILE = "users.json"
 USERNAME_RE = re.compile(r"^[A-Za-z0-9_]{3,30}$")
 MIN_PASSWORD_LENGTH = 8
 
-def get_input():
-    return request.get_json(silent=True)
+def _get_input():
+    data= request.get_json(silent=True)
+    return data if isinstance(data,dict) else request.form
 
-def next_user_id(users):
-    numbers = [int(u["id"].split("-")[1]) for u in users if u.get("id", "").startswith("user-")]
-    return f"user-{max(numbers, default=0) + 1:03d}"    
 
-def public(user):
-        return {k: user[k] for k in ("id", "username", "email", "created_at")}
+def _public(user):
+    return {k: user[k] for k in ("id", "username", "email", "created_at")}
 
 
 def _error(message, status):
@@ -45,7 +42,7 @@ def login_required(view):
 
 @bp.post("/register")
 def register():
-    data = get_input()
+    data = _get_input()
     username = (data.get("username") or "").strip()
     email = (data.get("email") or "").strip()
     password = data.get("password") or ""
@@ -56,8 +53,12 @@ def register():
         email = validate_email(email, check_deliverability=False).normalized.lower()
     except EmailNotValidError:
         return _error("Enter a valid email address.", 400)
-    if len(password) < MIN_PASSWORD_LENGTH:
-        return _error(f"Password must be at least {MIN_PASSWORD_LENGTH} characters.", 400)
+    if (len(password) < MIN_PASSWORD_LENGTH
+            or not re.search(r"[A-Z]", password)
+            or not re.search(r"[a-z]", password)
+            or not re.search(r"[^A-Za-z0-9]", password)):
+        return _error(f"Password must be at least {MIN_PASSWORD_LENGTH} characters and include "
+                    "an uppercase letter, a lowercase letter, and a special character.", 400)
 
     db=get_db()
     if db.execute("SELECT 1 FROM users WHERE email = ?", (email,)).fetchone():
@@ -68,7 +69,8 @@ def register():
     try:
         cur = db.execute(
             "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-            (username, email, generate_password_hash(password)),
+            (username, email, generate_password_hash(password, method="pbkdf2:sha256")
+),
         )
         db.commit()
     except sqlite3.IntegrityError:
@@ -77,12 +79,12 @@ def register():
     user = db.execute("SELECT * FROM users WHERE id = ?", (cur.lastrowid,)).fetchone()
     session.clear()
     session["user_id"] = user["id"]
-    return jsonify({"user": public(user)}), 201
+    return jsonify({"user": _public(user)}), 201
 
 
 @bp.post("/login")
 def login():
-    data = get_input()
+    data = _get_input()
     email = (data.get("email") or "").strip().lower()
     password = data.get("password") or ""
 
@@ -93,7 +95,7 @@ def login():
 
     session.clear()  # start a fresh session on every login
     session["user_id"] = user["id"]
-    return jsonify({"user": public(user)}), 200
+    return jsonify({"user": _public(user)}), 200
 
 
 @bp.post("/logout")
@@ -106,4 +108,4 @@ def logout():
 @login_required
 def me():
     """Lets the front end ask 'who is logged in right now?'"""
-    return jsonify({"user": public(g.user)}), 200
+    return jsonify({"user": _public(g.user)}), 200

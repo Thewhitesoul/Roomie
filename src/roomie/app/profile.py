@@ -1,4 +1,3 @@
-import uuid
 from flask import Blueprint, jsonify, request,g 
 from .auth import login_required
 from .db import get_db
@@ -86,10 +85,12 @@ def _my_profile():
 @login_required
 def create_profile():
     data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+            return _error("Send the profile as a JSON object.", 400)
     cleaned, err = _clean(data, require_name=True)
     if err:
         return _error(err, 400)
-
+    
     if _my_profile():
         return _error("You already have a profile. Use PUT /profiles/me to edit it.", 409)
 
@@ -108,6 +109,7 @@ def create_profile():
 
     row = db.execute("SELECT * FROM profiles WHERE id = ?", (cur.lastrowid,)).fetchone()
     return jsonify(_to_dict(row)), 201
+
 @profiles_bp.get("")
 @login_required
 def list_profiles():
@@ -126,10 +128,11 @@ def get_my_profile():
 @login_required
 def update_my_profile():
     data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+            return _error("Send the profile as a JSON object.", 400)
     cleaned, err = _clean(data, require_name=False)
     if err:
         return _error(err, 400)
-
     row = _my_profile()
     if row is None:
         return _error("Profile not found", 404)
