@@ -23,6 +23,16 @@ def _clean(data, require_name):
         if len(name.strip()) > MAX_NAME:
             return None, f"Name must be {MAX_NAME} characters or fewer."
         cleaned["name"] = name.strip()
+    if "age" in data:
+        age = data.get("age")
+        if age is not None and (
+            isinstance(age, bool)
+            or not isinstance(age, int)
+            or age < 18
+            or age > 9223372036854775807
+        ):
+            return None, "Age must be a whole number of 18 or more within SQLite's integer range."
+        cleaned["age"] = age
 
     if "bio" in data:
         bio = data.get("bio") or ""
@@ -63,6 +73,7 @@ def _to_dict(row):
         "id": row["id"],
         "user_id": row["user_id"],
         "name": row["name"],
+        "age": row["age"],
         "bio": row["bio"],
         "budget": row["budget"],
         "preferred_location": row["preferred_location"],
@@ -95,13 +106,17 @@ def create_profile():
 
     db = get_db()
     cur = db.execute(
-        """INSERT INTO profiles (user_id, name, bio, budget, preferred_location)
-        VALUES (?, ?, ?, ?, ?)""",
-        (g.user["id"],                       # always from the session, never the request
-        cleaned["name"],
-        cleaned.get("bio", ""),
-        cleaned.get("budget"),
-        cleaned.get("preferred_location", "")),
+        """INSERT INTO profiles
+        (user_id, name, age, bio, budget, preferred_location)
+        VALUES (?, ?, ?, ?, ?, ?)""",
+        (
+            g.user["id"],
+            cleaned["name"],
+            cleaned.get("age"),
+            cleaned.get("bio", ""),
+            cleaned.get("budget"),
+            cleaned.get("preferred_location", ""),
+        ),
     )
     _save_interests(db, cur.lastrowid, cleaned.get("interests", []))
     db.commit()   # profile + interests saved together, or not at all

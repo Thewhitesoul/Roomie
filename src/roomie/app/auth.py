@@ -68,7 +68,11 @@ def register():
     try:
         cur = db.execute(
             "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-            (username, email, generate_password_hash(password)),
+            (
+                username,
+                email,
+                generate_password_hash(password, method="pbkdf2:sha256:1000000"),
+            ),
         )
         db.commit()
     except sqlite3.IntegrityError:

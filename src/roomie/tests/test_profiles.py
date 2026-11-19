@@ -150,3 +150,64 @@ def test_cannot_edit_someone_elses_profile(client):
     register(client, "stuti", "stuti@washburn.edu")
     client.put("/profiles/me", json={"name": "Hacked"})
     assert client.get("/profiles/1").get_json()["name"] == "Arpan"
+
+@pytest.mark.parametrize("age", [18, 21, None])
+def test_create_profile_with_age(logged_in, age):
+    response = create(logged_in, age=age)
+    assert response.status_code == 201
+    assert response.get_json()["age"] == age
+
+    saved = logged_in.get("/profiles/me")
+    assert saved.status_code == 200
+    assert saved.get_json()["age"] == age
+
+
+def test_age_is_optional(logged_in):
+    response = create(logged_in)
+    assert response.status_code == 201
+    assert response.get_json()["age"] is None
+
+
+@pytest.mark.parametrize("bad_age", [
+    17, -1, "21", 21.5, True, 9223372036854775808,
+])
+def test_create_rejects_invalid_age(logged_in, app, bad_age):
+    response = create(logged_in, age=bad_age)
+    assert response.status_code == 400
+    assert profile_count(app) == 0
+
+
+def test_update_age(logged_in):
+    assert create(logged_in, age=21).status_code == 201
+
+    response = logged_in.put("/profiles/me", json={"age": 22})
+    assert response.status_code == 200
+    assert response.get_json()["age"] == 22
+    assert logged_in.get("/profiles/me").get_json()["age"] == 22
+
+
+@pytest.mark.parametrize("bad_age", [
+    17, -1, "21", 21.5, True, 9223372036854775808,
+])
+def test_update_rejects_invalid_age(logged_in, bad_age):
+    assert create(logged_in, age=21).status_code == 201
+
+    response = logged_in.put("/profiles/me", json={"age": bad_age})
+    assert response.status_code == 400
+    assert logged_in.get("/profiles/me").get_json()["age"] == 21
+
+
+def test_other_updates_preserve_age(logged_in):
+    assert create(logged_in, age=21).status_code == 201
+
+    response = logged_in.put("/profiles/me", json={"bio": "Night owl."})
+    assert response.status_code == 200
+    assert logged_in.get("/profiles/me").get_json()["age"] == 21
+
+
+def test_clear_age(logged_in):
+    assert create(logged_in, age=21).status_code == 201
+
+    response = logged_in.put("/profiles/me", json={"age": None})
+    assert response.status_code == 200
+    assert logged_in.get("/profiles/me").get_json()["age"] is None
