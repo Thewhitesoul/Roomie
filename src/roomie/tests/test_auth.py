@@ -1,12 +1,12 @@
 import pytest
 from app.db import get_db
 def register(client, username="arpan", email="arpan@washburn.edu", password="Password123!"):
-    return client.post("/auth/register", json={
+    return client.post("/api/auth/register", json={
         "username": username, "email": email, "password": password,
     })
 
 def login(client, email="arpan@washburn.edu", password="Password123!"):
-    return client.post("/auth/login", json={"email": email, "password": password})
+    return client.post("/api/auth/login", json={"email": email, "password": password})
 
 def user_count(app):
     with app.app_context():
@@ -26,7 +26,7 @@ def test_register_does_not_return_password_hash(client):
 
 def test_register_logs_user_in(client):
     register(client)
-    assert client.get("/auth/me").status_code == 200
+    assert client.get("/api/auth/me").status_code == 200
 
 def test_register_duplicate_email(client, app):
     register(client)
@@ -61,20 +61,20 @@ def test_register_bad_username(client):
     assert register(client, username="a b").status_code == 400
 
 def test_register_missing_fields(client):
-    assert client.post("/auth/register", json={}).status_code == 400
+    assert client.post("/api/auth/register", json={}).status_code == 400
 
 def test_register_works_with_html_form(client):
-    resp = client.post("/auth/register", data={
+    resp = client.post("/api/auth/register", data={
         "username": "rajju", "email": "rajju@washburn.edu", "password": "Password123!",
     })
     assert resp.status_code == 201
 # login/logout
 def test_login_success(client):
     register(client)
-    client.post("/auth/logout")
+    client.post("/api/auth/logout")
     resp = login(client)
     assert resp.status_code == 200
-    assert client.get("/auth/me").get_json()["user"]["username"] == "arpan"
+    assert client.get("/api/auth/me").get_json()["user"]["username"] == "arpan"
 
 def test_login_email_is_case_insensitive(client):
     register(client)
@@ -82,10 +82,10 @@ def test_login_email_is_case_insensitive(client):
     
 def test_login_wrong_password(client):
     register(client)
-    client.post("/auth/logout")
+    client.post("/api/auth/logout")
     resp = login(client, password="wrongpass1")
     assert resp.status_code == 401
-    assert client.get("/auth/me").status_code == 401
+    assert client.get("/api/auth/me").status_code == 401
     
 def test_login_unknown_email_same_message(client):
     register(client)
@@ -95,10 +95,10 @@ def test_login_unknown_email_same_message(client):
 
 def test_logout(client):
     register(client)
-    assert client.post("/auth/logout").status_code == 200
-    assert client.get("/auth/me").status_code == 401
+    assert client.post("/api/auth/logout").status_code == 200
+    assert client.get("/api/auth/me").status_code == 401
 
 def test_me_requires_login(client):
-    resp = client.get("/auth/me")
+    resp = client.get("/api/auth/me")
     assert resp.status_code == 401
     assert "error" in resp.get_json()

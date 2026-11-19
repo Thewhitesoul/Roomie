@@ -1,14 +1,14 @@
 import pytest
 from app.db import get_db
 def register(client, username="arpan", email="arpan@washburn.edu"):
-    resp = client.post("/auth/register", json={
+    resp = client.post("/api/auth/register", json={
         "username": username, "email": email, "password": "Password123!",
     })
     return resp.get_json()["user"]["id"]
 
 def create(client, **fields):
     body = {"name": "Arpan", **fields}
-    return client.post("/profiles", json=body)
+    return client.post("/api/profiles", json=body)
 
 def profile_count(app):
     with app.app_context():
@@ -54,7 +54,7 @@ def test_only_one_profile_per_user(logged_in, app):
 
 
 def test_create_profile_requires_name(logged_in):
-    assert logged_in.post("/profiles", json={}).status_code == 400
+    assert logged_in.post("/api/profiles", json={}).status_code == 400
     assert create(logged_in, name="   ").status_code == 400
 
 
@@ -79,40 +79,40 @@ def test_interests_are_cleaned(logged_in):
 def test_get_all_profiles(client):
     register(client, "arpan", "arpan@washburn.edu")
     create(client, name="Arpan")
-    client.post("/auth/logout")
+    client.post("/api/auth/logout")
 
     register(client, "stuti", "stuti@washburn.edu")
     create(client, name="Stuti")
 
-    response = client.get("/profiles")
+    response = client.get("/api/profiles")
     assert response.status_code == 200
     assert [p["name"] for p in response.get_json()] == ["Arpan", "Stuti"]
 
 def test_get_single_profile(logged_in):
     profile_id = create(logged_in, interests=["gaming"]).get_json()["id"]
-    response = logged_in.get(f"/profiles/{profile_id}")
+    response = logged_in.get(f"/api/profiles/{profile_id}")
     assert response.status_code == 200
     assert response.get_json()["name"] == "Arpan"
     assert response.get_json()["interests"]==["gaming"]
 
 def test_get_missing_profile(logged_in):
-    response = logged_in.get("/profiles/999")
+    response = logged_in.get("/api/profiles/999")
     assert response.status_code == 404
     assert response.get_json() == {"error": "Profile not found"}
 
 def test_viewing_requires_login(client):
-    assert client.get("/profiles").status_code == 401
-    assert client.get("/profiles/1").status_code == 401
+    assert client.get("/api/profiles").status_code == 401
+    assert client.get("/api/profiles/1").status_code == 401
 
 
 def test_get_my_profile(logged_in):
-    assert logged_in.get("/profiles/me").status_code == 404
+    assert logged_in.get("/api/profiles/me").status_code == 404
     create(logged_in)
-    assert logged_in.get("/profiles/me").get_json()["name"] == "Arpan"
+    assert logged_in.get("/api/profiles/me").get_json()["name"] == "Arpan"
     
 def test_update_my_profile(logged_in):
     create(logged_in, budget=700)
-    response = logged_in.put("/profiles/me", json={"budget": 650, "bio": "Night owl."})
+    response = logged_in.put("/api/profiles/me", json={"budget": 650, "bio": "Night owl."})
     assert response.status_code == 200
     assert response.get_json()["budget"] == 650
     assert response.get_json()["bio"] == "Night owl."
@@ -121,32 +121,32 @@ def test_update_my_profile(logged_in):
 
 def test_update_replaces_interests(logged_in):
     create(logged_in, interests=["gaming", "cooking"])
-    response = logged_in.put("/profiles/me", json={"interests": ["hiking"]})
+    response = logged_in.put("/api/profiles/me", json={"interests": ["hiking"]})
     assert response.get_json()["interests"] == ["hiking"]
 
 
 def test_update_cannot_change_owner_or_id(logged_in):
     create(logged_in)
-    response = logged_in.put("/profiles/me", json={"user_id": 999, "id": 999})
+    response = logged_in.put("/api/profiles/me", json={"user_id": 999, "id": 999})
     assert response.get_json()["user_id"] == 1
     assert response.get_json()["id"] == 1
 
 
 def test_update_validates(logged_in):
     create(logged_in)
-    assert logged_in.put("/profiles/me", json={"budget": -5}).status_code == 400
-    assert logged_in.put("/profiles/me", json={"name": ""}).status_code == 400
+    assert logged_in.put("/api/profiles/me", json={"budget": -5}).status_code == 400
+    assert logged_in.put("/api/profiles/me", json={"name": ""}).status_code == 400
 
 
 def test_update_without_profile(logged_in):
-    assert logged_in.put("/profiles/me", json={"bio": "hi"}).status_code == 404
+    assert logged_in.put("/api/profiles/me", json={"bio": "hi"}).status_code == 404
 
 
 def test_cannot_edit_someone_elses_profile(client):
     register(client, "arpan", "arpan@washburn.edu")
     create(client, name="Arpan")
-    client.post("/auth/logout")
+    client.post("/api/auth/logout")
 
     register(client, "stuti", "stuti@washburn.edu")
-    client.put("/profiles/me", json={"name": "Hacked"})
-    assert client.get("/profiles/1").get_json()["name"] == "Arpan"
+    client.put("/api/profiles/me", json={"name": "Hacked"})
+    assert client.get("/api/profiles/1").get_json()["name"] == "Arpan"

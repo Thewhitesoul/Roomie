@@ -9,7 +9,7 @@ from flask import Blueprint, g, jsonify
 from .auth import login_required
 from .db import get_db
 
-interest_bp = Blueprint("interest", __name__, url_prefix="/interest")
+interest_bp = Blueprint("interest", __name__, url_prefix="/api/interest")
 
 
 def _error(message, status):

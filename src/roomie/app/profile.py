@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request,g 
 from .auth import login_required
 from .db import get_db
-profiles_bp = Blueprint("profiles", __name__,url_prefix="/profiles")
+profiles_bp = Blueprint("profiles", __name__,url_prefix="/api/profiles")
 MAX_NAME = 60
 MAX_BIO = 500
 MAX_LOCATION = 100
@@ -92,7 +92,7 @@ def create_profile():
         return _error(err, 400)
     
     if _my_profile():
-        return _error("You already have a profile. Use PUT /profiles/me to edit it.", 409)
+        return _error("You already have a profile. Use PUT /api/profiles/me to edit it.", 409)
 
     db = get_db()
     cur = db.execute(

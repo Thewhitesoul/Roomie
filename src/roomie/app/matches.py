@@ -4,7 +4,7 @@ from flask import Blueprint, g, jsonify, request
 from .auth import login_required
 from .db import get_db
 
-matches_bp = Blueprint("matches", __name__, url_prefix="/matches")
+matches_bp = Blueprint("matches", __name__, url_prefix="/api/matches")
 DEFAULT_LIMIT = 20
 MAX_LIMIT = 50
 

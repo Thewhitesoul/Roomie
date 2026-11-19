@@ -6,7 +6,7 @@ import functools
 from datetime import datetime, timezone
 from .db import get_db
 import sqlite3
-bp= Blueprint("auth", __name__, url_prefix="/auth")
+bp= Blueprint("auth", __name__, url_prefix="/api/auth")
 USERNAME_RE = re.compile(r"^[A-Za-z0-9_]{3,30}$")
 MIN_PASSWORD_LENGTH = 8
 
