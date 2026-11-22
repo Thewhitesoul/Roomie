@@ -1,7 +1,9 @@
-import uuid
-from flask import Blueprint, jsonify, request,g 
+import sqlite3
+
+from flask import Blueprint, flash, jsonify, request, g
 from .auth import login_required
-from .db import get_db
+from .db import SQLITE_MAX_INTEGER, get_db
+from .profile_state import MIN_AGE, MAX_AGE, HOUSING_LABELS
 profiles_bp = Blueprint("profiles", __name__,url_prefix="/profiles")
 MAX_NAME = 60
 MAX_BIO = 500
@@ -11,12 +13,12 @@ MAX_INTEREST_LENGTH = 30
 def _error(message, status):
     return jsonify({"error": message}), status
 
-def _clean(data, require_name):
+def _clean(data, creating):
     """Check the input. Returns (cleaned_fields, None) or (None, error_message).
-    Only these 5 fields are read, so user_id or id in the request are ignored."""
+    Only supported profile fields are read; user_id and id are ignored."""
     cleaned = {}
 
-    if "name" in data or require_name:
+    if "name" in data or creating:
         name = data.get("name")
         if not isinstance(name, str) or not name.strip():
             return None, "Name is required."
@@ -24,8 +26,22 @@ def _clean(data, require_name):
             return None, f"Name must be {MAX_NAME} characters or fewer."
         cleaned["name"] = name.strip()
 
+    if "age" in data or creating:
+        age = data.get("age")
+        if isinstance(age, bool) or not isinstance(age, int) or not MIN_AGE <= age <= MAX_AGE:
+            return None, f"Age must be a whole number from {MIN_AGE} to {MAX_AGE}."
+        cleaned["age"] = age
+
+    if "housing_status" in data or creating:
+        housing = data.get("housing_status")
+        if not isinstance(housing, str) or housing not in HOUSING_LABELS:
+            return None, "Choose whether you need housing or already have housing."
+        cleaned["housing_status"] = housing
+
     if "bio" in data:
-        bio = data.get("bio") or ""
+        bio = data.get("bio")
+        if bio is None:
+            bio = ""
         if not isinstance(bio, str) or len(bio) > MAX_BIO:
             return None, f"Bio must be text, {MAX_BIO} characters or fewer."
         cleaned["bio"] = bio.strip()
@@ -33,18 +49,21 @@ def _clean(data, require_name):
     if "budget" in data:
         budget = data.get("budget")
         # bool is a kind of int in Python, so rule it out explicitly.
-        if budget is not None and (isinstance(budget, bool) or not isinstance(budget, int) or budget < 0):
-            return None, "Budget must be a whole number of 0 or more."
+        if budget is not None and (isinstance(budget, bool) or not isinstance(budget, int)
+                                   or not 0 <= budget <= SQLITE_MAX_INTEGER):
+            return None, f"Budget must be a whole number from 0 to {SQLITE_MAX_INTEGER}."
         cleaned["budget"] = budget
 
-    if "preferred_location" in data:
-        loc = data.get("preferred_location") or ""
-        if not isinstance(loc, str) or len(loc) > MAX_LOCATION:
-            return None, f"Preferred location must be text, {MAX_LOCATION} characters or fewer."
+    if "preferred_location" in data or creating:
+        loc = data.get("preferred_location")
+        if not isinstance(loc, str) or not loc.strip() or len(loc) > MAX_LOCATION:
+            return None, f"Preferred location is required and must be text, {MAX_LOCATION} characters or fewer."
         cleaned["preferred_location"] = loc.strip()
 
     if "interests" in data:
-        interests = data.get("interests") or []
+        interests = data.get("interests")
+        if interests is None:
+            interests = []
         if (not isinstance(interests, list)
                 or len(interests) > MAX_INTERESTS
                 or not all(isinstance(i, str) and 0 < len(i.strip()) <= MAX_INTEREST_LENGTH for i in interests)):
@@ -63,6 +82,8 @@ def _to_dict(row):
         "id": row["id"],
         "user_id": row["user_id"],
         "name": row["name"],
+        "age": row["age"],
+        "housing_status": row["housing_status"],
         "bio": row["bio"],
         "budget": row["budget"],
         "preferred_location": row["preferred_location"],
@@ -85,8 +106,12 @@ def _my_profile():
 @profiles_bp.post("")
 @login_required
 def create_profile():
-    data = request.get_json(silent=True) or {}
-    cleaned, err = _clean(data, require_name=True)
+    if not request.is_json:
+        return _error("Send a JSON request.", 415)
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return _error("Request body must be a valid JSON object.", 400)
+    cleaned, err = _clean(data, creating=True)
     if err:
         return _error(err, 400)
 
@@ -94,19 +119,25 @@ def create_profile():
         return _error("You already have a profile. Use PUT /profiles/me to edit it.", 409)
 
     db = get_db()
-    cur = db.execute(
-        """INSERT INTO profiles (user_id, name, bio, budget, preferred_location)
-        VALUES (?, ?, ?, ?, ?)""",
-        (g.user["id"],                       # always from the session, never the request
-        cleaned["name"],
-        cleaned.get("bio", ""),
-        cleaned.get("budget"),
-        cleaned.get("preferred_location", "")),
-    )
-    _save_interests(db, cur.lastrowid, cleaned.get("interests", []))
-    db.commit()   # profile + interests saved together, or not at all
+    try:
+        with db:  # The profile and its interests are one atomic write.
+            cur = db.execute(
+                """INSERT INTO profiles (user_id, name, bio, budget, preferred_location, age, housing_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (g.user["id"],                       # always from the session, never the request
+                cleaned["name"],
+                cleaned.get("bio", ""),
+                cleaned.get("budget"),
+                cleaned["preferred_location"], cleaned["age"], cleaned["housing_status"]),
+            )
+            _save_interests(db, cur.lastrowid, cleaned.get("interests", []))
+    except sqlite3.IntegrityError:
+        if _my_profile() is not None:
+            return _error("You already have a profile. Reload to edit it.", 409)
+        raise
 
     row = db.execute("SELECT * FROM profiles WHERE id = ?", (cur.lastrowid,)).fetchone()
+    flash("Profile created. Welcome home!")
     return jsonify(_to_dict(row)), 201
 @profiles_bp.get("")
 @login_required
@@ -125,8 +156,12 @@ def get_my_profile():
 @profiles_bp.put("/me")
 @login_required
 def update_my_profile():
-    data = request.get_json(silent=True) or {}
-    cleaned, err = _clean(data, require_name=False)
+    if not request.is_json:
+        return _error("Send a JSON request.", 415)
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return _error("Request body must be a valid JSON object.", 400)
+    cleaned, err = _clean(data, creating=False)
     if err:
         return _error(err, 400)
 
@@ -150,13 +185,15 @@ def update_my_profile():
     db.commit()
 
     row = db.execute("SELECT * FROM profiles WHERE id = ?", (row["id"],)).fetchone()
+    flash("Profile saved.")
     return jsonify(_to_dict(row)), 200
 
 @profiles_bp.get("/<int:profile_id>")
 @login_required
 def get_profile(profile_id):
+    if profile_id > SQLITE_MAX_INTEGER:
+        return _error("Profile not found", 404)
     row = get_db().execute("SELECT * FROM profiles WHERE id = ?", (profile_id,)).fetchone()
     if row is None:
         return _error("Profile not found", 404)
     return jsonify(_to_dict(row)), 200
-    

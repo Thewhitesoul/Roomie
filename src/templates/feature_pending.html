@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} | Roomie{% endblock %}
+{% block content %}
+<section class="form-card">
+  <p class="eyebrow">FRONTEND PREVIEW</p>
+  <h1>{{ page_title }}</h1>
+  <p class="notice">This page is not connected yet. Matching and profile browsing are not integrated. No profile data is available on this page.</p>
+  <a class="text-link" href="{{ url_for('home') }}">Back to home</a>
+</section>
+{% endblock %}

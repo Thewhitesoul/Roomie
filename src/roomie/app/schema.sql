@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS profiles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
+    age INTEGER CHECK (age IS NULL OR (typeof(age) = 'integer' AND age BETWEEN 18 AND 120)),
+    housing_status TEXT CHECK (housing_status IS NULL OR housing_status IN ('needs_housing', 'has_housing')),
     bio TEXT NOT NULL DEFAULT '',
     budget INTEGER CHECK (budget IS NULL OR budget >= 0),
     preferred_location TEXT NOT NULL DEFAULT '',

@@ -14,7 +14,8 @@ def user_count(app):
 def test_register_success(client, app):
     resp = register(client)
     assert resp.status_code == 201
-    assert resp.get_json()["user"]["id"] == "user-001"
+    assert isinstance(resp.get_json()["user"]["id"], int)
+    assert resp.get_json()["user"]["id"] == 1
     with app.app_context():
         saved = get_db().execute("SELECT * FROM users WHERE id=1").fetchone()
     assert saved["email"] == "arpan@washburn.edu"
@@ -50,15 +51,16 @@ def test_register_bad_username(client):
 def test_register_missing_fields(client):
     assert client.post("/auth/register", json={}).status_code == 400
 
-def test_register_works_with_html_form(client):
+def test_register_rejects_html_form(client):
     resp = client.post("/auth/register", data={
         "username": "rajju", "email": "rajju@washburn.edu", "password": "password123",
     })
-    assert resp.status_code == 201
+    assert resp.status_code == 415
+    assert "JSON" in resp.get_json()["error"]
 # login/logout
 def test_login_success(client):
     register(client)
-    client.post("/auth/logout")
+    client.post("/auth/logout", json={})
     resp = login(client)
     assert resp.status_code == 200
     assert client.get("/auth/me").get_json()["user"]["username"] == "arpan"
@@ -69,7 +71,7 @@ def test_login_email_is_case_insensitive(client):
     
 def test_login_wrong_password(client):
     register(client)
-    client.post("/auth/logout")
+    client.post("/auth/logout", json={})
     resp = login(client, password="wrongpass1")
     assert resp.status_code == 401
     assert client.get("/auth/me").status_code == 401
@@ -82,7 +84,7 @@ def test_login_unknown_email_same_message(client):
 
 def test_logout(client):
     register(client)
-    assert client.post("/auth/logout").status_code == 200
+    assert client.post("/auth/logout", json={}).status_code == 200
     assert client.get("/auth/me").status_code == 401
 
 def test_me_requires_login(client):

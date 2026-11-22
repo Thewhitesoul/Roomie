@@ -29,9 +29,23 @@ def test_connection_closed_after_request(app):
         db.execute("SELECT 1")
 
 
-def test_init_db_command(runner):
+def test_init_db_command(tmp_path):
+    path = tmp_path / 'fresh-cli.sqlite'
+    app = create_app({'TESTING': True, 'DATABASE': str(path)})
+    assert not path.exists()
+    runner = app.test_cli_runner()
     result = runner.invoke(args=["init-db"])
+    assert result.exit_code == 0, result.output
     assert "Initialized" in result.output
+    with app.app_context():
+        db = get_db()
+        tables = {row['name'] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        assert {'users', 'profiles', 'profile_interests', 'connection_requests', 'preferences'} <= tables
+        uid = _user(db, 'preserved')
+        db.commit()
+    assert runner.invoke(args=['init-db']).exit_code == 0
+    with app.app_context():
+        assert get_db().execute('SELECT username FROM users WHERE id=?', (uid,)).fetchone()[0] == 'preserved'
 
 
 def test_data_survives_restart(tmp_path):

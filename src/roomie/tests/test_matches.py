@@ -2,7 +2,7 @@ import pytest
 
 
 def register(client, username):
-    client.post("/auth/logout")
+    client.post("/auth/logout", json={})
     resp = client.post("/auth/register", json={
         "username": username,
         "email": f"{username}@washburn.edu",
@@ -15,7 +15,7 @@ def register(client, username):
 def make_user(client, username, **profile):
     """Register a user and give them a profile. Leaves them logged in."""
     register(client, username)
-    body = {"name": username.title(), **profile}
+    body = {"name": username.title(), "age": 21, "housing_status": "needs_housing", "preferred_location": "Topeka", **profile}
     assert client.post("/profiles", json=body).status_code == 201
 
 

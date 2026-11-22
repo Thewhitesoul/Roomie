@@ -3,7 +3,7 @@ import pytest
 
 def login_as(client, username, make_profile=True):
     """Register (first time) or log in as username. Returns their user id."""
-    client.post("/auth/logout")
+    client.post("/auth/logout", json={})
     email = f"{username}@washburn.edu"
     resp = client.post("/auth/register", json={
         "username": username, "email": email, "password": "password123",
@@ -11,7 +11,7 @@ def login_as(client, username, make_profile=True):
     if resp.status_code == 409:   # already registered -> just log in
         resp = client.post("/auth/login", json={"email": email, "password": "password123"})
     elif make_profile:
-        client.post("/profiles", json={"name": username.title()})
+        client.post("/profiles", json={"name": username.title(), "age": 21, "housing_status": "needs_housing", "preferred_location": "Topeka"})
     return resp.get_json()["user"]["id"]
 
 

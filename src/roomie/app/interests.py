@@ -7,7 +7,7 @@ import sqlite3
 from flask import Blueprint, g, jsonify
 
 from .auth import login_required
-from .db import get_db
+from .db import SQLITE_MAX_INTEGER, get_db
 
 interest_bp = Blueprint("interest", __name__, url_prefix="/interest")
 
@@ -36,6 +36,8 @@ def _is_mutual(db, me, other):
 @interest_bp.post("/<int:user_id>")
 @login_required
 def show_interest(user_id):
+    if user_id > SQLITE_MAX_INTEGER:
+        return _error("User not found", 404)
     me = g.user["id"]
     db = get_db()
     if user_id == me:
@@ -58,6 +60,8 @@ def show_interest(user_id):
 @interest_bp.delete("/<int:user_id>")
 @login_required
 def withdraw_interest(user_id):
+    if user_id > SQLITE_MAX_INTEGER:
+        return _error("You haven't shown interest in this user.", 404)
     db = get_db()
     cur = db.execute(
         "DELETE FROM connection_requests WHERE from_user_id = ? AND to_user_id = ?",

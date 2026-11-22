@@ -2,7 +2,7 @@
 from flask import Blueprint, g, jsonify, request
 
 from .auth import login_required
-from .db import get_db
+from .db import SQLITE_MAX_INTEGER, get_db
 
 matches_bp = Blueprint("matches", __name__, url_prefix="/matches")
 DEFAULT_LIMIT = 20
@@ -16,9 +16,16 @@ def _whole_number(name):
     raw = request.args.get(name)
     if raw is None or raw.strip() == "":
         return None, None
-    if not raw.strip().isdigit():
+    raw = raw.strip()
+    if not raw.isascii() or not raw.isdecimal():
         return None, f"{name} must be a whole number of 0 or more."
-    return int(raw), None
+    try:
+        value = int(raw)
+    except ValueError:  # Python limits conversions of excessively long numbers.
+        return None, f"{name} is too large."
+    if name in {'min_budget', 'max_budget'} and value > SQLITE_MAX_INTEGER:
+        return None, f"{name} must be at most {SQLITE_MAX_INTEGER}."
+    return value, None
 
 
 def _interests_for(profile_id):

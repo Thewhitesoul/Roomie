@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Set Up' if mode == 'setup' else 'Edit' }} Your Profile | Roomie{% endblock %}
+{% block content %}
+<section class="form-card profile-editor">
+  <p class="eyebrow">{{ 'A GOOD MATCH STARTS WITH YOU' if mode == 'setup' else 'YOUR PROFILE, YOUR WAY' }}</p>
+  <h1 id="profile-title">{{ 'Make yourself at home' if mode == 'setup' else 'Edit your profile' }}</h1>
+  <p>{{ 'Add the essentials so future roommates can get to know you.' if mode == 'setup' else 'Keep your details up to date. Changes are saved only when you choose Save.' }}</p>
+  <p class="profile-required-note">Display name, age, location, and housing situation are required.</p>
+  <form data-profile-form data-mode="{{ mode }}" data-read-url="{{ url_for('profiles.get_my_profile') }}" data-create-url="{{ url_for('profiles.create_profile') }}" data-update-url="{{ url_for('profiles.update_my_profile') }}" data-save-destination="{{ url_for('profile') }}">
+    <div class="profile-form-grid" id="personal-details">
+      <div><label for="name">Display name</label><input id="name" name="name" maxlength="60" value="{{ saved.get('name', '') }}" aria-describedby="display-name-help" required disabled><small id="display-name-help">Your public name. This does not change your login username.</small></div>
+      <div><label for="age">Age</label><input id="age" name="age" type="number" min="18" max="120" step="1" value="{{ saved.get('age') if saved.get('age') is not none else '' }}" required disabled></div>
+    </div>
+    <label for="location">Preferred location</label><input id="location" name="preferred_location" maxlength="100" value="{{ saved.get('preferred_location', '') }}" placeholder="City or area" required disabled>
+    <div class="profile-form-grid" id="housing-details">
+      <div><label for="housing_status">Housing situation</label><select id="housing_status" name="housing_status" required disabled><option value="">Choose your situation</option>{% for value, label in housing_labels.items() %}<option value="{{ value }}" {% if saved.get('housing_status') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div><label for="budget">Monthly budget ($)</label><input id="budget" name="budget" type="number" min="0" max="9223372036854775807" step="1" value="{{ saved.get('budget') if saved.get('budget') is not none else '' }}" placeholder="Optional" disabled></div>
+    </div>
+    <label for="interests">Interests</label><textarea id="interests" name="interests" rows="3" aria-describedby="interests-help" placeholder="Cooking, music, hiking" disabled>{{ saved.get('interests', [])|join(', ') }}</textarea><small id="interests-help">Separate with commas. Up to 10 interests, 30 characters each.</small>
+    <label for="bio">About me</label><textarea id="bio" name="bio" maxlength="500" rows="4" placeholder="What would living with you be like?" disabled>{{ saved.get('bio', '') }}</textarea>
+    <div class="profile-form-actions"><button type="submit" disabled>{{ 'Save and continue' if mode == 'setup' else 'Save changes' }} <span aria-hidden="true">→</span></button><a class="text-link" href="{{ url_for('home') if mode == 'setup' else url_for('profile') }}">{{ 'Finish later' if mode == 'setup' else 'Cancel' }}</a></div>
+    <p class="form-feedback" role="status" aria-live="polite"></p><button type="button" data-profile-retry hidden>Retry loading profile</button><a data-profile-login class="text-link" href="{{ url_for('login', next=request.path) }}" hidden>Log in again</a>
+    <noscript><p class="notice">Enable JavaScript to securely load and save your profile.</p></noscript>
+  </form>
+</section>
+{% endblock %}

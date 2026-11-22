@@ -8,31 +8,34 @@
     <h1>Create your account</h1>
     <p>Start finding your next roommate.</p>
 
-    <form data-preview-form>
+    <form {% if auth_enabled %}data-auth-form method="post" action="{{ url_for('auth.register') }}"{% else %}data-preview-form{% endif %}>
         <label for="username">Username</label>
         <input id="username" name="username" type="text"
-               autocomplete="username" required>
+               autocomplete="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_]{3,30}" required>
 
         <label for="email">Email</label>
         <input id="email" name="email" type="email"
                autocomplete="email" required>
 
         <label for="password">Password</label>
-        <input id="password" type="password"
+        <input id="password" name="password" type="password"
                autocomplete="new-password"
-               minlength="12" required>
+               aria-describedby="registration-password-help"
+               minlength="{{ min_password_length|default(8) }}" required>
+        <p id="registration-password-help">Use at least {{ min_password_length|default(8) }} characters.</p>
 
         <label for="confirm_password">Confirm password</label>
-        <input id="confirm_password" type="password"
+        <input id="confirm_password" name="confirm_password" type="password"
                autocomplete="new-password"
-               minlength="12" required>
+               aria-describedby="registration-password-help"
+               minlength="{{ min_password_length|default(8) }}" required>
 
-        <button type="submit" disabled>Create account — preview</button>
+        <button type="submit" disabled>{{ 'Create account' if auth_enabled else 'Create account — preview' }}</button>
         <p class="form-feedback" role="status" aria-live="polite"></p>
-        <noscript><p class="notice">Preview only: this form does not submit or save data.</p></noscript>
+        <noscript><p class="notice">{% if auth_enabled %}Enable JavaScript to securely create your account.{% else %}Preview only: this form does not submit or save data.{% endif %}</p></noscript>
     </form>
 
-    <p>Account creation will be connected to the backend later.</p>
+    {% if not auth_enabled %}<p>Account creation will be connected to the backend later.</p>{% endif %}
     <p>
         Already have an account?
         <a href="{{ url_for('login') }}">Log in</a>

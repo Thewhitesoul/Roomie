@@ -4,6 +4,14 @@
 
 This document defines the initial testing and integration plan for the Roomie semester MVP. It translates the requirements in `docs/requirements.md` into testable checks and gives the team a consistent process for reviewing features before they are merged into `main`.
 
+The current implementation and final local execution report are in
+[the integration audit](../docs/code-and-tests.md): 395 active pytest tests and
+64 Chrome scenarios pass. Run `python -m pytest -q` and
+`python tests/browser/run_profile.py` from the repository root using the installed
+environment. Browser prerequisites and the two-user manual steps are documented
+there and in the root README. The legacy JSON-storage sources were removed;
+active discovery is defined by the repository's pytest.ini.
+
 ## 2. Scope
 The plan covers the MVP requirements FR-01 through FR-11:
 
@@ -39,7 +47,7 @@ Local development databases must not be used for automated tests. Tests must not
 | FR-03 | Create and edit a profile while authenticated. | Automated and manual | Saved profile information is displayed correctly and later edits replace the intended values. |
 | FR-04 | Save interests, lifestyle information, housing needs, and preferences. | Automated | All supported fields persist and remain connected to the correct user. |
 | FR-05 | Submit each required profile field as empty. | Automated and manual | The request is rejected, the missing field is identified, and no partial record is stored. |
-| FR-06 | Filter seeded profiles using selected preferences. | Automated and manual | Only profiles satisfying the supported filters are returned. |
+| FR-06 | Filter real SQLite test profiles by profile budget, location, and interests. | Automated and manual | Only profiles satisfying those filters are returned; lifestyle preferences do not currently affect compatibility. |
 | FR-07 | View another roommate profile. | Automated and manual | Relevant profile data is visible, but email, password hash, and private login data are not exposed. |
 | FR-08 | Show interest in another user. | Automated | One valid interest record connects the authenticated sender and selected receiver. |
 | FR-09 | Change and remove existing interest. | Automated | The correct record changes or is removed without affecting another user's records. |
@@ -120,4 +128,9 @@ Testing may begin when the requirement being tested has an implemented route or 
 
 ## 9. Current Dependencies
 
-The test cases and traceability plan can be prepared before backend implementation is complete. Final automated integration tests depend on stable Flask routes, SQLite schema, validation rules, and service behavior. Rajju should edit the test names and commands to match the final implementation rather than assuming draft function names.
+The implemented suite covers the existing Flask factory, SQLite schema/migrations,
+authentication/CSRF, profile onboarding, discovery, interests, notifications,
+preferences, and authenticated sharing. Keep tests aligned with the actual local
+implementation and rerun the committed checkout on a second team machine before
+main-branch approval. Chrome uses temporary SQLite and independent cookie jars;
+never substitute the development database for its test database.

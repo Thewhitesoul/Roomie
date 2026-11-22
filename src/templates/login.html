@@ -8,7 +8,7 @@
     <h1>Welcome back</h1>
     <p>Log in to find your next roommate.</p>
 
-    <form data-preview-form>
+    <form {% if auth_enabled %}data-auth-form method="post" action="{{ url_for('auth.login') }}"{% else %}data-preview-form{% endif %}>
         <label for="email">Email</label>
         <input
             id="email"
@@ -21,16 +21,17 @@
         <label for="password">Password</label>
         <input
             id="password"
+            name="password"
             type="password"
             autocomplete="current-password"
             required
         >
 
-        <button type="submit" disabled>Preview login</button>
+        <button type="submit" disabled>{{ 'Log in' if auth_enabled else 'Preview login' }}</button>
         <p class="form-feedback" role="status" aria-live="polite"></p>
-        <noscript><p class="notice">Preview only: this form does not submit or save data.</p></noscript>
+        <noscript><p class="notice">{% if auth_enabled %}Enable JavaScript to securely submit this form.{% else %}Preview only: this form does not submit or save data.{% endif %}</p></noscript>
     </form>
 
-    <p>This preview does not sign you in.</p>
+    {% if not auth_enabled %}<p>This preview does not sign you in.</p>{% endif %}
 </section>
 {% endblock %}

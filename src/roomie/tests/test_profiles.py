@@ -7,7 +7,7 @@ def register(client, username="arpan", email="arpan@washburn.edu"):
     return resp.get_json()["user"]["id"]
 
 def create(client, **fields):
-    body = {"name": "Arpan", **fields}
+    body = {"name": "Arpan", "age": 21, "housing_status": "needs_housing", "preferred_location": "Topeka", **fields}
     return client.post("/profiles", json=body)
 
 def profile_count(app):
@@ -79,7 +79,7 @@ def test_interests_are_cleaned(logged_in):
 def test_get_all_profiles(client):
     register(client, "arpan", "arpan@washburn.edu")
     create(client, name="Arpan")
-    client.post("/auth/logout")
+    client.post("/auth/logout", json={})
 
     register(client, "stuti", "stuti@washburn.edu")
     create(client, name="Stuti")
@@ -145,7 +145,7 @@ def test_update_without_profile(logged_in):
 def test_cannot_edit_someone_elses_profile(client):
     register(client, "arpan", "arpan@washburn.edu")
     create(client, name="Arpan")
-    client.post("/auth/logout")
+    client.post("/auth/logout", json={})
 
     register(client, "stuti", "stuti@washburn.edu")
     client.put("/profiles/me", json={"name": "Hacked"})
