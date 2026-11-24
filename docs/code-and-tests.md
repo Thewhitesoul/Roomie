@@ -245,3 +245,22 @@ work. No PR mutation/comment or merge was performed.
     Escape and outside click for dropdowns; verify the opaque compact notification
     panel, mobile form controls, saved views, and clear errors. Record team/browser
     results before approving the main-branch merge.
+## J. Stuti's independent verification — 2026-11-23
+
+- Reviewed integration commit `a67010e` on local branch
+  `stuti-final-database-review`.
+- Environment: macOS, Python 3.13.17, isolated `.venv-review`.
+- Installed dependencies from the root `requirements.txt`.
+- Ran `python -m pytest -q` from the repository root.
+- Result: **395 passed, 0 failed in 60.31 seconds**.
+- Confirmed that the new Python installation provides `hashlib.scrypt`.
+- Added an ER diagram matching the implemented five-table SQLite schema.
+
+### Local browser persistence check — 2026-11-24
+
+Registered a test account, created a profile, and saved lifestyle preferences.
+Stopped and restarted Flask using the same SQLite file, then confirmed the
+profile budget remained $600 and the preferences budget remained $700.
+
+This confirms local persistence for the checked profile and preferences.
+Full two-user browser testing and hosted persistence verification remain pending.

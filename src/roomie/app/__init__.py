@@ -11,6 +11,7 @@ from .matches import matches_bp
 from .interests import interest_bp
 from .preferences import preferences_bp
 from .frontend import register_pages
+from . import seed
 
 
 class SQLiteIDConverter(IntegerConverter):
@@ -46,6 +47,7 @@ def create_app(test_config=None):
     os.makedirs(app.instance_path, exist_ok=True)
     security.init_app(app)
     db.init_app(app)
+    seed.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(profiles_bp)
     app.register_blueprint(matches_bp)
