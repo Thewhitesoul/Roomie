@@ -256,5 +256,11 @@ work. No PR mutation/comment or merge was performed.
 - Confirmed that the new Python installation provides `hashlib.scrypt`.
 - Added an ER diagram matching the implemented five-table SQLite schema.
 
-This verification covers the automated Python suite. Independent browser
-testing and hosted database persistence verification remain pending.
+### Local browser persistence check — 2026-11-24
+
+Registered a test account, created a profile, and saved lifestyle preferences.
+Stopped and restarted Flask using the same SQLite file, then confirmed the
+profile budget remained $600 and the preferences budget remained $700.
+
+This confirms local persistence for the checked profile and preferences.
+Full two-user browser testing and hosted persistence verification remain pending.
