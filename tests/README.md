@@ -537,3 +537,31 @@ The four passing tests verify preview behavior only, not the complete MVP.
 - Interest creation, changes, and removal.
 - Self-interest prevention.
 - Protected-page authorization.
+## 14. Backend Testing Results – November 25, 2026
+
+
+### Full Test Results
+
+**Command used:**
+```bash
+PYTHONPATH=src/roomie python -m pytest -v
+```
+
+**Results:**
+- 131 tests collected
+- 130 tests passed
+- 1 test failed
+
+The tests covered authentication, database operations, user profiles, preferences, roommate matching, interest functionality, and frontend navigation.
+
+### Failed Test
+
+The failing test was `test_register_works_with_html_form`.
+
+The test sent regular HTML form data, but the backend registration route currently reads JSON data. Because the backend did not receive JSON, it returned None, which caused an AttributeError.
+
+This issue needs clarification. The team needs to decide whether the registration route should accept regular HTML form submissions or whether the frontend should send JSON instead.
+
+### Conclusion
+
+Most automated tests passed successfully. The remaining issue concerns the expected format of registration data. The frontend forms and backend routes also need to be fully connected before integration can be considered complete.
