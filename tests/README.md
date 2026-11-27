@@ -565,3 +565,53 @@ This issue needs clarification. The team needs to decide whether the registratio
 ### Conclusion
 
 Most automated tests passed successfully. The remaining issue concerns the expected format of registration data. The frontend forms and backend routes also need to be fully connected before integration can be considered complete.
+## 15. Additional Registration Validation Tests – November 26, 2026
+
+### Purpose
+
+Four additional registration tests were added to check input validation and database error handling.
+
+### Test Execution
+
+**Command used:**
+
+```bash
+PYTHONPATH=src/roomie python -m pytest -v src/roomie/tests/test_register_paths.py
+```
+
+### Test Results
+
+- Total tests: 4
+- Passed: 3
+- Failed: 1
+
+### Test Cases
+
+**1. Username shorter than minimum length**
+- Expected: HTTP 400 (Bad Request)
+- Result: Passed
+
+**2. Password at minimum length (8 characters)**
+- Expected: Registration accepted
+- Result: Passed
+
+**3. Non-text email input (numeric value)**
+- Expected: HTTP 400 instead of a server crash
+- Result: Failed
+
+**4. Database insertion error**
+- Expected: HTTP 409 (Conflict)
+- Result: Passed
+### Failed Test Analysis
+
+The test `test_register_non_text_field_rejected` failed because the registration route attempts to call `.strip()` on the email value without checking its data type first.
+
+When a numeric value is submitted instead of text, the backend raises an `AttributeError` instead of returning a validation response.
+
+### Recommended Action
+
+The backend should validate that username, email, and password values are strings before processing them. This issue should be reviewed with the backend.
+
+### Conclusion
+
+Three of the four additional registration tests passed. The remaining test identified an input-validation issue that needs to be addressed before registration handling can be considered fully reliable.
