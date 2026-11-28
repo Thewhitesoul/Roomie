@@ -1,49 +1,32 @@
 {% extends "base.html" %}
-
 {% block title %}My Profile | Roomie{% endblock %}
-
 {% block content %}
-<section class="form-card">
-    <p class="eyebrow">MAKE YOURSELF AT HOME</p>
-    <h1>Build your profile</h1>
-    <p>Help potential roommates get to know you.</p>
-
-    <form data-preview-form>
-        <label for="name">Display name</label>
-        <input id="name" name="name" type="text"
-               maxlength="80" required>
-
-        <label for="age">Age</label>
-        <input id="age" name="age" type="number"
-               min="18" max="120" required>
-
-        <label for="location">Preferred location</label>
-        <input id="location" name="location" type="text"
-               maxlength="100" placeholder="Example: Topeka"
-               required>
-
-        <label for="housing_status">Housing situation</label>
-        <select id="housing_status" name="housing_status" required>
-            <option value="">Choose an option</option>
-            <option value="needs_housing">I need housing</option>
-            <option value="has_housing">I already have housing</option>
-        </select>
-
-        <label for="interests">Interests</label>
-        <textarea id="interests" name="interests"
-                  maxlength="500" rows="3"
-                  placeholder="Music, soccer, cooking..."></textarea>
-
-        <label for="bio">About you</label>
-        <textarea id="bio" name="bio"
-                  maxlength="500" rows="4"
-                  placeholder="What would living with you be like?"></textarea>
-
-        <button type="submit" disabled>Save profile — preview</button>
-        <p class="form-feedback" role="status" aria-live="polite"></p>
-        <noscript><p class="notice">Preview only: this form does not submit or save data.</p></noscript>
-    </form>
-
-    <p>This preview does not save your information yet.</p>
-</section>
+<div class="profile-overview">
+  <header class="profile-page-heading">
+    <div><p class="eyebrow">YOUR SPACE ON ROOMIE</p><h1>My profile</h1><p>A little about you. A better place to connect.</p></div>
+    <a class="button primary" href="{{ url_for('profile_edit') }}">Edit profile <span aria-hidden="true">↗</span></a>
+  </header>
+  <div class="profile-content">
+    <section class="profile-identity" aria-labelledby="display-name">
+      <div class="profile-avatar" aria-hidden="true">{{ profile.name[0]|upper }}</div>
+      <div><p class="eyebrow">MAKE YOURSELF AT HOME</p><h2 id="display-name">{{ profile.name }}</h2><p>@{{ nav_user.username }}</p></div>
+      <span class="profile-status">Ready to connect</span>
+    </section>
+    <section class="profile-section" aria-labelledby="personal-heading">
+      <h2 id="personal-heading">Personal information</h2>
+      <dl class="profile-facts">
+        <div><dt>Display name</dt><dd>{{ profile.name }}</dd></div>
+        <div><dt>Age</dt><dd>{{ profile.age }}</dd></div>
+        <div><dt>Preferred location</dt><dd>{{ profile.preferred_location }}</dd></div>
+        <div><dt>Housing situation</dt><dd>{{ housing_labels[profile.housing_status] }}</dd></div>
+        <div><dt>Monthly budget</dt><dd>{% if profile.budget is not none %}${{ profile.budget }}/month{% else %}Not added yet{% endif %}</dd></div>
+        <div><dt>About me</dt><dd class="profile-biography">{{ profile.bio or 'No biography added yet.' }}</dd></div>
+      </dl>
+    </section>
+    <section class="profile-section" aria-labelledby="interests-heading">
+      <h2 id="interests-heading">Your interests</h2>
+      <p>The things that make you, you.</p><div class="tags">{% for interest in profile.interests %}<span>{{ interest }}</span>{% else %}<p>No interests added yet.</p>{% endfor %}</div>
+    </section>
+  </div>
+</div>
 {% endblock %}

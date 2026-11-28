@@ -11,7 +11,7 @@ from src.preview import app
 class NavigationTests(unittest.TestCase):
     def test_public_navigation_and_registration(self):
         client = app.test_client()
-        for path in ('/', '/matches', '/login', '/register', '/profiles/1'):
+        for path in ('/', '/matches', '/login', '/register'):
             response = client.get(path)
             self.assertEqual(response.status_code, 200)
             nav = response.text.split('<nav', 1)[1].split('</nav>', 1)[0]
@@ -46,7 +46,7 @@ class NavigationTests(unittest.TestCase):
                     return '/logout' if endpoint == 'logout' else original_url_for(endpoint, **values)
                 with patch.object(app, 'url_for', side_effect=backend_url):
                     html = render_template('base.html', csrf_token=lambda: 'test-token')
-                self.assertIn(name or 'sam_user', html)
+                self.assertIn('sam_user', html)
                 self.assertIn('action="/logout"', html)
                 self.assertIn('method="post"', html)
                 self.assertIn('value="test-token"', html)

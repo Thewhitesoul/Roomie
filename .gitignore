@@ -6,10 +6,13 @@ __pycache__/
 # Virtual environments
 venv/
 .venv/
+.venv-*/
 env/
 
 # Flask and local environment files
 .env
+.env.*
+!.env.example
 .flaskenv
 instance/
 
@@ -17,6 +20,9 @@ instance/
 *.db
 *.sqlite
 *.sqlite3
+*.db-*
+*.sqlite-*
+*.sqlite3-*
 
 # Test and coverage output
 .pytest_cache/

@@ -7,13 +7,20 @@
     <p class="hero-description">Shared space. Your kind of people. Meet college roommates who fit your everyday life, from quiet study nights to spontaneous coffee runs.</p>
     <div class="hero-actions"><a class="button primary" href="{{ url_for('matches') }}">Find your people <span aria-hidden="true">↗</span></a>{% if not nav_user %}<a class="text-link" href="{{ url_for('register') }}">Get started <span aria-hidden="true">→</span></a>{% endif %}</div>
   </div>
-  <div class="card-stage" aria-label="Meet our fictional preview roommates">
+  <div class="card-stage" aria-label="Roommate connections">
     <span class="orbit" aria-hidden="true"></span><span class="spark" aria-hidden="true">✳</span>
     {% for person in featured_profiles %}
-    <a class="floating-card floating-{{ loop.index }}" href="{{ url_for('profile_detail', user_id=person.user_id) }}">
-      <div class="portrait portrait-{{ loop.index }}"><span class="portrait-initial">{{ person.name[0] }}</span><span class="portrait-tag">{{ person.interests.split(',')[0] }} enthusiast</span></div>
-      <div class="floating-info"><div><h2>{{ person.name }}, {{ person.age }}</h2><p>{{ person.location }} · Preview profile</p></div><span class="round-arrow" aria-hidden="true">↗</span></div>
+    <a class="floating-card floating-{{ loop.index }}" href="{{ url_for('profile_detail', profile_id=person.id) }}">
+      <div class="portrait portrait-{{ loop.index }}"><span class="portrait-initial">{{ person.name[0] }}</span><span class="portrait-tag">{{ person.interests[0] if person.interests else 'A new connection' }}</span></div>
+      <div class="floating-info"><div><h2>{{ person.name }}</h2><p>{{ person.preferred_location or 'Location not provided' }}</p></div><span class="round-arrow" aria-hidden="true">↗</span></div>
     </a>
+    {% else %}
+    {% for title, text, initial in [('Find your people', 'Explore real roommate profiles', 'R'), ('Share your interests', 'Let others get to know you', 'I'), ('Make room for more', 'Good company starts at home', 'H')] %}
+    <a class="floating-card floating-{{ loop.index }}" href="{{ url_for('matches') }}">
+      <div class="portrait portrait-{{ loop.index }}"><span class="portrait-initial">{{ initial }}</span><span class="portrait-tag">Roommate connections</span></div>
+      <div class="floating-info"><div><h2>{{ title }}</h2><p>{{ text }}</p></div><span class="round-arrow" aria-hidden="true">↗</span></div>
+    </a>
+    {% endfor %}
     {% endfor %}
     <span class="stage-sticker">YOUR PEOPLE<br>ARE OUT THERE ↗</span>
   </div>

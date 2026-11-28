@@ -1,61 +1,35 @@
 {% extends "base.html" %}
-
 {% block title %}Preferences | Roomie{% endblock %}
-
 {% block content %}
-<section class="form-card">
-    <p class="eyebrow">MAKE YOURSELF AT HOME</p>
-    <h1>Your roommate preferences</h1>
-    <p>Tell us what living arrangement suits you.</p>
-
-    <form data-preview-form>
-        <label for="cleanliness">Cleanliness</label>
-        <select id="cleanliness" name="cleanliness">
-            <option value="any">No preference</option>
-            <option value="relaxed">Relaxed</option>
-            <option value="moderate">Moderate</option>
-            <option value="very_clean">Very clean</option>
-        </select>
-
-        <label for="sleep_schedule">Sleep schedule</label>
-        <select id="sleep_schedule" name="sleep_schedule">
-            <option value="any">No preference</option>
-            <option value="early">Early sleeper</option>
-            <option value="late">Night owl</option>
-            <option value="flexible">Flexible</option>
-        </select>
-
-        <label for="study_habits">Study environment</label>
-        <select id="study_habits" name="study_habits">
-            <option value="any">No preference</option>
-            <option value="quiet">Quiet</option>
-            <option value="social">Social</option>
-            <option value="mixed">A mix of both</option>
-        </select>
-
-        <label for="smoking_preference">Smoking</label>
-        <select id="smoking_preference" name="smoking_preference">
-            <option value="any">No preference</option>
-            <option value="non_smoking">Non-smoking</option>
-            <option value="smoking_ok">Smoking is okay</option>
-        </select>
-
-        <label for="pet_preference">Pets</label>
-        <select id="pet_preference" name="pet_preference">
-            <option value="any">No preference</option>
-            <option value="no_pets">No pets</option>
-            <option value="pets_ok">Pets are okay</option>
-        </select>
-
-        <label for="budget">Monthly housing budget ($)</label>
-        <input id="budget" name="budget" type="number"
-               min="0" step="0.01" placeholder="Optional">
-
-        <button type="submit" disabled>Save preferences — preview</button>
-        <p class="form-feedback" role="status" aria-live="polite"></p>
-        <noscript><p class="notice">Preview only: this form does not submit or save data.</p></noscript>
-    </form>
-
-    <p>This preview does not save your preferences yet.</p>
-</section>
+{% if auth_enabled %}
+<div class="preferences-overview" data-preferences-overview>
+  <header class="profile-page-heading">
+    <div><p class="eyebrow">FEEL AT HOME TOGETHER</p><h1>Your preferences</h1><p>The everyday things that make living together work.</p></div>
+    {% if not preferences_error %}<a class="button primary" href="{{ url_for('preferences_edit') }}">Edit preferences <span aria-hidden="true">↗</span></a>{% endif %}
+  </header>
+  <div class="profile-content">
+    {% if preferences_error %}
+    <p class="notice" role="alert">{{ preferences_error }}</p><a class="text-link" href="{{ url_for('preferences') }}">Retry loading preferences</a>
+    {% else %}
+    {% if preferences_empty %}<p class="preferences-intro">Explore the choices below, then choose Edit preferences to set what suits you. You can leave any choice as No preference.</p>{% endif %}
+    {% for heading, fields in preference_sections %}
+    <section class="profile-section" aria-labelledby="preferences-section-{{ loop.index }}">
+      <h2 id="preferences-section-{{ loop.index }}">{{ heading }}</h2>
+      <dl class="profile-facts">
+        {% for field in fields %}{% set info = preference_fields[field] %}{% set value = saved.get(field) %}
+        <div><dt>{{ info.label }}</dt><dd><span data-preference-value="{{ field }}">{{ info.choices.get(value, value) if value is not none else 'No preference' }}</span>{% if preferences_empty %}<small class="preference-options">Choices: No preference · {{ info.choices.values()|join(' · ') }}</small>{% endif %}</dd></div>
+        {% endfor %}
+      </dl>
+    </section>
+    {% endfor %}
+    <section class="profile-section" aria-labelledby="preferences-budget-heading">
+      <h2 id="preferences-budget-heading">Monthly housing budget</h2>
+      <p data-preference-value="budget">{% if saved.get('budget') is not none %}${{ saved.budget }}/month{% else %}No budget set{% endif %}</p>
+    </section>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<section class="form-card"><h1>Your preferences</h1><p>Open the backend application and sign in to load and save lifestyle preferences.</p></section>
+{% endif %}
 {% endblock %}

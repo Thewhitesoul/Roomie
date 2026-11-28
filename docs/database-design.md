@@ -1,5 +1,93 @@
 # Roomie Database Design
 
+## Implemented schema (final integration)
+
+The design below is the original concept, not a migration script. The current
+source of truth is [schema.sql](../src/roomie/app/schema.sql) plus the additive
+profile migration in `app/db.py`. See the [integration audit](code-and-tests.md)
+for current verification and compatibility findings.
+
+| Implemented table | Keys and meaning |
+| --- | --- |
+| users | Integer id; unique username/email; password hash |
+| profiles | Integer id distinct from user_id; one profile per account; nullable legacy age/housing fields; profile budget |
+| profile_interests | (profile_id, interest) primary key; personal hobbies used for discovery ranking |
+| preferences | user_id primary key; five optional lifestyle text fields and a separate optional preference budget; no preference_id column |
+| connection_requests | Directed from_user_id/to_user_id pair with uniqueness and no-self constraints; mutual means both directed rows exist; no status column |
+
+There is no implemented RoomListing table. Lifestyle preferences are shareable
+with authenticated users but are not compatibility factors in current matching.
+Neither budget overwrites the other. Initialization does not delete existing
+data, and this audit made no schema changes.
+## Implemented ER diagram
+
+This diagram represents the implemented SQLite tables. PK means primary key,
+FK means foreign key, and UK means unique key.
+
+```mermaid
+erDiagram
+    users ||--o| profiles : owns
+    users ||--o| preferences : saves
+    profiles ||--o{ profile_interests : has
+    users ||--o{ connection_requests : sends
+    users ||--o{ connection_requests : receives
+
+    users {
+        INTEGER id PK
+        TEXT username UK
+        TEXT email UK
+        TEXT password_hash
+        TEXT created_at
+    }
+
+    profiles {
+        INTEGER id PK
+        INTEGER user_id FK,UK
+        TEXT name
+        INTEGER age
+        TEXT housing_status
+        TEXT bio
+        INTEGER budget
+        TEXT preferred_location
+        TEXT created_at
+        TEXT updated_at
+    }
+
+    preferences {
+        INTEGER user_id PK,FK
+        TEXT cleanliness
+        TEXT sleep_schedule
+        TEXT study_habits
+        TEXT smoking_preference
+        TEXT pet_preference
+        INTEGER budget
+    }
+
+    profile_interests {
+        INTEGER profile_id PK,FK
+        TEXT interest PK
+    }
+
+    connection_requests {
+        INTEGER id PK
+        INTEGER from_user_id FK
+        INTEGER to_user_id FK
+        TEXT created_at
+    }
+```
+
+- A user can have zero or one profile and zero or one preferences record.
+- Each profile, preferences record, and connection request references existing users.
+- Each profile interest belongs to one profile.
+- The primary key of profile_interests is the pair (profile_id, interest).
+- The pair (from_user_id, to_user_id) must be unique, and users cannot send requests to themselves.
+- A mutual match consists of two requests in opposite directions.
+- All foreign keys use ON DELETE CASCADE.
+- RoomListing is future scope and is not implemented.
+
+The sections below preserve the original proposal; their planned names and
+requirements may differ from the implemented schema above.
+
 ## 1. Introduction
 This document describes the initial database design for Roomie, a web application that helps college students find compatible roommates. The database will store user accounts, profiles, lifestyle preferences, and roommate interest requests. Room listings are included as a future feature.
 
@@ -114,3 +202,20 @@ RoomListing is included in the design to show how housing listings could be supp
 ## 6. Future Refinements
 
 This is an initial database design. The team may refine field requirements, data types, constraints, and relationships during implementation and testing. Any changes should be discussed with the team to keep the database design consistent with the Roomie requirements.
+
+
+## Implemented profile onboarding migration
+
+The implemented SQLite `profiles` table uses `id` as profile ID and
+`preferred_location` as the location column. It now includes nullable `age`
+(integer 18–120 when present) and `housing_status` (`needs_housing` or
+`has_housing` when present). Nullability preserves legacy incomplete rows; new
+API-created profiles and completed onboarding require name, age, location, and
+housing situation. Bio, budget, and interest records remain supported.
+
+`app/db.py` upgrades existing databases with additive, transactional ALTER TABLE
+operations, including existing databases whose tables were created earlier.
+It preserves all old rows, relationships, and ID sequences; CREATE TABLE IF NOT
+EXISTS alone is not used as a migration. Run `flask --app app migrate-db` from
+`src/roomie` for an explicit upgrade, or allow first DB access to migrate.
+See [the profile guide](profile-integration.md) for exact constraints and tests.
