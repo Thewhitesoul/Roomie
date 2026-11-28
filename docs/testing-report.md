@@ -118,4 +118,26 @@ The full test run had 130 passing tests and one failure. My four additional regi
 
 I documented the results and identified issues for the team to address. More testing will be needed after the remaining problems are fixed.
 
----
+
+## Cyclomatic Complexity Analysis
+
+Cyclomatic complexity was measured using Radon 6.0.1.
+
+Command used:
+
+`radon cc src/roomie/app -s -a`
+
+Results:
+- Total functions and methods analyzed: 41
+- Average cyclomatic complexity: 3.80
+- Overall complexity grade: A
+
+The majority of functions received Grade A, indicating relatively low complexity. However, three functions were identified for closer review:
+
+- `profile.py` — `_clean`: 33 (Grade E)
+- `matches.py` — `find_matches`: 20 (Grade C)
+- `preferences.py` — `save_preferences`: 18 (Grade C)
+
+The `_clean` function has the highest complexity and should be reviewed for possible simplification. The other two functions may also benefit from being divided into smaller, more manageable sections.
+
+The analysis output is saved in `docs/cyclomatic-complexity.txt`.
